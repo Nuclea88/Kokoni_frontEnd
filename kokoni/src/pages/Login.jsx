@@ -29,7 +29,7 @@ export default function Login() {
             <img 
                 src={logoLila} 
                 alt="Kokoni Logo" 
-                className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(163,44,196,0.5)]" 
+                className="w-full h-full object-contain drop-shadow-[0_0_15px_var(--color-secondary)]" 
             />
         </div>
         <h1 className="text-3xl font-bold mb-4"><span className="text-gradient">Kokoni</span></h1>

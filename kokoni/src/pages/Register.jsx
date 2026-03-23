@@ -1,8 +1,8 @@
 import { useState, useContext } from 'react';
 import { Mail, Lock, User, Sparkles } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
-import { Input } from '../components/atoms/Input';
-import { Button } from '../components/atoms/Button';
+import  Input  from '../components/atoms/Input';
+import  Button  from '../components/atoms/Button';
 import { useNavigate } from 'react-router';
 import logoLila from '../assets/kokoni_lila.png';
 
@@ -32,11 +32,11 @@ export default function Register() {
             <img 
                 src={logoLila} 
                 alt="Kokoni Logo" 
-                className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(163,44,196,0.5)]" 
+                className="w-full h-full object-contain drop-shadow-[0_0_15px_var(--color-secondary)]" 
             />
         </div>
         <h1 className="text-3xl font-bold mb-2">Únete a <span className="text-gradient">Kokoni</span></h1>
-        <p className="text-textMuted text-sm mb-8 text-center">Crea tu cuenta y empieza a trackear tu lectura sin límites.</p>
+        <p className="text-textMuted text-sm mb-8 text-center">Crea tu cuenta y empieza a trackear sin límites.</p>
         <form onSubmit={handleSubmit} className="w-full space-y-4">
           <Input 
             icon={User} 

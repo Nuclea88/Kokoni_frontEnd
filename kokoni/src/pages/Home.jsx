@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import  Tag  from '../components/atoms/Tag';
 import MediaCard from '../components/molecules/MediaCard';
 import { Plus } from 'lucide-react';
 
 const Home = () => {
+    const navigate = useNavigate();
     const [activeFilter, setActiveFilter] = useState('Leyendo');
 
     const filters = ['Leyendo', 'Leído', 'Pospuesto', 'Lista XX'];
@@ -31,7 +33,7 @@ const Home = () => {
         <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
             {trendingManga.map((manga, idx) => (
               <div key={idx} className="min-w-[280px] bg-surface/40 border border-white/5 rounded-2xl p-3 flex space-x-4 items-center">
-                <img src={manga.image} className="w-16 h-20 object-cover rounded-lg shadow-lg" alt="" />
+                <img src={manga.image} className="w-16 h-20 object-cover rounded-lg shadow-lg" alt="" onClick={() => navigate(`/dashboard/manga/${idx}`)}/>
                 <div className="flex flex-col">
                   <h4 className="text-sm font-bold text-white uppercase">{manga.title}</h4>
                   <p className="text-[10px] text-textMuted mb-2">{manga.chapter}</p>
@@ -51,7 +53,7 @@ const Home = () => {
       </section>
       <section className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {allManga.map((manga, idx) => (
-          <MediaCard key={idx} {...manga} />
+          <MediaCard key={idx} {...manga} onClick={() => navigate(`/dashboard/manga/${idx}`)}/>
         ))}
         
         <div className="fixed bottom-24 right-6 z-50">

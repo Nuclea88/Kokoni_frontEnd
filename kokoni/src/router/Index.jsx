@@ -4,6 +4,7 @@ import Register from '../pages/Register';
 import  Home  from '../pages/Home';
 import DashboardLayout from '../components/templates/DashboardLayout';
 import { PrivateRoute } from './PrivateRoute';
+import { MangaDetails } from '../pages/MangaDetails';
 
 const router = createBrowserRouter([
 
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />
+      },
+      {
+        path: "manga/:id",
+        element: <MangaDetails />
       },
       {
         path: "novedad",

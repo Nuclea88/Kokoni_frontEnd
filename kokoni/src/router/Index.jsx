@@ -5,6 +5,7 @@ import  Home  from '../pages/Home';
 import DashboardLayout from '../components/templates/DashboardLayout';
 import { PrivateRoute } from './PrivateRoute';
 import { MangaDetails } from '../pages/MangaDetails';
+import  Explore  from '../pages/Explore';
 
 const router = createBrowserRouter([
 
@@ -42,7 +43,7 @@ const router = createBrowserRouter([
       },
       {
         path: "explorar",
-        element: <div className="animate-fade-in-up uppercase text-xs font-bold text-secondary">Explorador de Mangas</div>
+        element: <Explore />
       },
       {
         path: "ajustes",

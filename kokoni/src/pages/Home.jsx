@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import  Tag  from '../components/atoms/Tag';
 import MediaCard from '../components/molecules/MediaCard';
 import { Plus } from 'lucide-react';
+import ListButton from '../components/atoms/ListButton';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -51,15 +52,18 @@ const Home = () => {
           <Tag key={f} active={activeFilter === f} onClick={() => setActiveFilter(f)}>{f}</Tag>
         ))}
       </section>
-      <section className="grid grid-cols-2 md:grid-cols-3 gap-6">
+      <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         {allManga.map((manga, idx) => (
           <MediaCard key={idx} {...manga} onClick={() => navigate(`/dashboard/manga/${idx}`)}/>
         ))}
         
         <div className="fixed bottom-24 right-6 z-50">
-          <button className="bg-kokoni-gradient p-4 rounded-full shadow-2xl shadow-primary/40 text-white active:scale-90 transition-all">
-            <Plus className="w-6 h-6 stroke-[3px]" />
-          </button>
+          <ListButton 
+            icon={Plus} 
+            variant="solid" 
+            className="w-14 h-14" 
+            onClick={() => console.log('Acción: Añadir manga personalizado o buscar')}
+          />
         </div>
       </section>
       <section className="glass-panel p-6 flex justify-around">

@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Menu, Search, BookOpen, Palette, Grid, AlignLeft, Cloud, LogOut } from 'lucide-react';
 import  UserProfileCard  from '../components/molecules/UserProfileCard';
 import  StatCard  from '../components/molecules/StatCard';
 import  SettingToggleRow  from '../components/molecules/SettingToggleRow';
 import Button from '../components/atoms/Button';
+import { AuthContext } from '../context/AuthContext';
+
+
 
 const Settings = () => {
+  const { user, logout } = useContext(AuthContext);
   const [theme, setTheme] = useState(true);
   const [glass, setGlass] = useState(false);
   const [density, setDensity] = useState(true);
@@ -24,35 +28,34 @@ const Settings = () => {
         
         {/* 2. Tarjeta del Perfil */}
         <UserProfileCard 
-          username="KuroNeko_99"
-          rank="ARCHMAGE RANK"
-          level="42"
-          avatar="https://img.freepik.com/vector-premium/chica-anime-chill-lofi_698903-8153.jpg" 
+          username={user?.username || 'Reaper'}
+          rank={user?.rankName || 'NOVICE RANK'}
+          level={user?.level || 1}
+          avatar={user?.avatarUrl || "https://img.freepik.com/vector-premium/chica-anime-chill-lofi_698903-8153.jpg"}  
         />
         {/* 3. Bloque de Estadísticas */}
         <div className="flex flex-col space-y-4">
           
           <StatCard 
-            title="TOTAL CHAPTERS READ"
-            value="12,482"
+            title="TOTAL CAPÍTULOS LEÍDOS"
+            value={user?.totalChaptersRead || 0}
             icon={BookOpen}
             borderColor="border-l-primary"
           />
-          
           <div className="grid grid-cols-2 gap-4">
             <StatCard 
-              title="STREAK"
-              value="14"
-              unit="DAYS"
-              progress={60}
+              title="RACHA"
+              value={user?.streakDays || 0}
+              unit="DÍAS"
+              progress={Math.min((user?.streakDays || 0) * 3.33, 100)} 
               progressColor="bg-primary"
               borderColor="border-l-secondary"
             />
             <StatCard 
-              title="TIME"
-              value="842"
+              title="TIEMPO"
+              value={user?.timeReadHours || 0}
               unit="HRS"
-              progress={85}
+              progress={Math.min((user?.timeReadHours || 0) * 0.2, 100)} 
               progressColor="bg-secondary"
               borderColor="border-l-secondary"
             />
@@ -98,7 +101,7 @@ const Settings = () => {
             variant="danger" 
             icon={LogOut} 
             className="py-5"
-            onClick={() => console.log('deslogueando...')}
+            onClick={logout}
             >
             Logout Session
         </Button>

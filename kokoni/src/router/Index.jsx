@@ -17,10 +17,6 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />
-  },{
-    //borrar, solo pruebas
-    path:"/prueba",
-    element: <DashboardLayout />
   },
   {
     path: "/dashboard",

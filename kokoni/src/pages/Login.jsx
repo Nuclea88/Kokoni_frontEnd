@@ -8,14 +8,35 @@ import logoLila from '../assets/kokoni_lila.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [form, setForm] = useState({
+    usernameOrEmail: "",
+    password: ""
+    });
+
+    const handleChange = (event) => {
+    setForm({
+    ...form,
+    [event.target.name]: event.target.value
+    });
+    };
+
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    await login(email, password);
-    navigate('/dashboard'); 
+  e.preventDefault();
+  setError('');
+    try {
+      await login(form.usernameOrEmail, form.password);
+      navigate('/dashboard'); 
+    } catch (err) {
+      setError('Usuario o contraseña incorrectos');
+      console.error("Fallo de login:", err);
+    }
   };
+  
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">
       {/* Background Glows (Micro-estética) */}
@@ -38,17 +59,19 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="w-full space-y-4">
           <Input 
             icon={Mail} 
-            type="email" 
+            type="text" 
+            name="usernameOrEmail"
             placeholder="Correo electrónico o Usuario" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={form.usernameOrEmail}
+            onChange={handleChange} required
           />
           <Input 
             icon={Lock} 
             type="password" 
+            name= "password"
             placeholder="Contraseña" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={form.password}
+            onChange={handleChange} required
           />
           
           <div className="flex justify-end w-full pb-2">
@@ -57,6 +80,7 @@ export default function Login() {
           <Button variant="primary" type="submit">
             Iniciar Sesión
           </Button>
+          {error && <p className="text-red-500 text-xs text-center mb-4 font-bold">{error}</p>}
         </form>
         <div className="mt-6 flex items-center space-x-2 text-sm text-textMuted">
           <span>¿No tienes cuenta?</span>

@@ -4,7 +4,7 @@ const MediaCard = ({ title, subtitle, cover, badge, onClick }) => {
       onClick={onClick} 
       className="group relative flex flex-col space-y-3 animate-fade-in-up cursor-pointer"
     >
-      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/5 shadow-xl">
+      <div className="relative aspect-[3/4] leaf-shape-xl overflow-hidden border border-white/5 shadow-xl">
         <img 
           src={cover} 
           alt={title} 

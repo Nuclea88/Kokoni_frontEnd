@@ -6,6 +6,7 @@ import DashboardLayout from '../components/templates/DashboardLayout';
 import { PrivateRoute } from './PrivateRoute';
 import { MangaDetails } from '../pages/MangaDetails';
 import  Explore  from '../pages/Explore';
+import Settings from '../pages/Settings';
 
 const router = createBrowserRouter([
 
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
       },
       {
         path: "novedad",
-        element: <div className="animate-fade-in-up uppercase text-xs font-bold text-primary">Sección Novedades</div>
+        element: <div className="animate-fade-in-up uppercase text-xs font-bold text-primary">Sección Novedades: próximamente</div>
       },
       {
         path: "explorar",
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
       },
       {
         path: "ajustes",
-        element: <div className="animate-fade-in-up uppercase text-xs font-bold text-textMuted text-center">Configuraciones de Usuario</div>
+        element: <Settings />
       }
     ]
   },

@@ -5,16 +5,16 @@ import GenreTag from '../atoms/GenreTag';
 const MangaListItem = ({ title, chapters, cover, isAdded, onClick, onAddClick, genres = []}) => {
   return (
     <div 
-      className="flex items-center space-x-4 bg-surface/30 border border-white/5 rounded-2xl p-2.5 hover:bg-surface/50 transition-colors cursor-pointer group"
+      className="flex items-center space-x-4 bg-surface/30 border border-white/5 leaf-shape p-2.5 hover:bg-surface/50 transition-colors cursor-pointer group"
       onClick={onClick}
     >
       
       {/* Imagen Izquierda */}
-      <div className="relative w-[60px] h-[85px] shrink-0 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+      <div className="relative w-[60px] h-[85px] shrink-0 .eaf-shape overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)]">
         <img 
           src={cover} 
           alt={title} 
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 rounded-tl-[30px] rounded-br-[30px] rounded-tr-[1px] rounded-bl-[1px] " 
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 leaf-shape " 
         />
         {/* Sombra integrada en la base de la imagen */}
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-60"></div>

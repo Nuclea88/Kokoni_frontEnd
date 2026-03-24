@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Search, Flame, Check, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
 // Rutas de tus componentes Atómicos y Moleculares
@@ -7,6 +7,7 @@ import Tag from '../components/atoms/Tag';
 import  MediaCard  from '../components/molecules/MediaCard';
 import  MangaListItem  from '../components/molecules/MangaListItem';
 import ListButton from '../components/atoms/ListButton';
+import mangaService from '../services/mangaService';
 
 
 const Explore = () => {
@@ -14,18 +15,56 @@ const Explore = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const categories = ['Todos', 'Acción', 'Romance', 'Seinen', 'Cyberpunk', 'Fantasía'];
-  // Datos simulados estructurados
-  const allManga = [
-    { id: 1, title: 'Obsidian Protocol', chapters: 124, cover: 'https://images.unsplash.com/photo-1541560052-77ec1bbc09f7?q=80&w=400', isAdded: true },
-    { id: 2, title: 'Cyber Spirit', chapters: 45, cover: 'https://images.unsplash.com/photo-1560972550-aba3456b5564?q=80&w=400', isAdded: false },
-    { id: 3, title: 'Golden Hour', chapters: 12, cover: 'https://images.unsplash.com/photo-1580477667995-2b94f01c9516?q=80&w=400', isAdded: false },
-    { id: 4, title: 'Neon Pulse', chapters: 2, cover: 'https://images.unsplash.com/photo-1614728263952-84ea206f99b6?q=80&w=400', isAdded: true },
-    { id: 5, title: 'Silent Voice', chapters: 1, cover: 'https://images.unsplash.com/photo-1578632738981-43c9ad4698d8?q=80&w=400', isAdded: false },
-  ];
+  const [mangas, setMangas] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+    useEffect(() => {
+        setPage(0);
+        setHasMore(true);
+         setMangas([]); 
+    }, [searchTerm]);
+
+    useEffect(() => {
+        const fetchMangas = async () => {
+            if (!searchTerm.trim()) 
+            return;
+            setLoading(true);
+
+            try {
+            const data = await mangaService.search(searchTerm, page);
+            setMangas(prev => (page === 0 ? data : [...prev, ...data]));
+            setHasMore(data.length > 0);;
+            } catch (error) {
+            console.error("Error buscando mangas", error);
+            } finally {
+            setLoading(false);
+            }
+        };
+        const timeoutId = setTimeout(fetchMangas, 500);
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm, page]);
+
   const handleToggleAdd = (id) => {
     // Aquí implementaremos la llamada a Spring Boot
     console.log("Manga ID pulsado para añadir/quitar:", id);
   };
+
+    const observer = useRef();
+    const lastMangaElementRef = useCallback(node => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+        setPage(prevPage => prevPage + 1);
+        }
+    }, { rootMargin: '200px' } );
+    
+    if (node) observer.current.observe(node);
+    }, [loading, hasMore]);
+
   return (
     <div className="flex flex-col min-h-screen bg-background pb-32 animate-fade-in-up">
       
@@ -71,42 +110,53 @@ const Explore = () => {
           {/* MÓVIL: VISTA DE LISTA HORIZONTAL CON BOTÓN  */}
           {/* ========================================= */}
           <div className="flex flex-col space-y-3 md:hidden">
-            {allManga.map((manga) => (
+            {loading && <p className="text-primary text-xs animate-pulse">Buscando en los archivos de Kokoni...</p>}
+            
+            {mangas.map((manga, index) => (
+              <div 
+                key={manga.externalId}
+                >
               <MangaListItem 
-                key={manga.id} 
                 title={manga.title}
-                chapters={manga.chapters}
-                cover={manga.cover}
-                isAdded={manga.isAdded}
-                onClick={() => navigate(`/dashboard/manga/${manga.id}`)}
-                onAddClick={() => handleToggleAdd(manga.id)}
-                genres = { ["Acción", "Romance"]}
+                author={manga.author || "???"} 
+                cover={manga.imageUrl}
+                isAdded={manga.isAddedToLibrary}
+                onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}
+                onAddClick={() => handleToggleAdd(manga.externalId)}
+                genres={manga.genres || []}
               />
+              </div>
             ))}
+
+            {!loading && searchTerm && mangas.length === 0 && (
+              <p className="text-textMuted text-sm text-center py-10">No hemos encontrado nada con ese nombre...</p>
+            )}
           </div>
+
           {/* ========================================= */}
           {/* ESCRITORIO/TABLET: VISTA DE GRID (Oculta en móviles) */}
           {/* ========================================= */}
           <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {allManga.map((manga) => (
-              <div key={manga.id} className="relative group cursor-pointer" onClick={() => navigate(`/dashboard/manga/${manga.id}`)}>
-                {/* Reutilizamos el MediaCard */}
+            { mangas.map((manga, index) => (
+              <div key={manga.externalId}  className="relative group cursor-pointer" onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}>
                 <MediaCard 
                   title={manga.title}
-                  subtitle={`${manga.chapters} Capítulos`}
-                  cover={manga.cover}
+                  subtitle={manga.author || "Autor desconocido"}
+                  cover={manga.imageUrl}
                 />
                 
-                {/* Inyectamos tu nuevo Átomo ActionBtn superpuesto */}
                 <ListButton 
-                  icon={manga.isAdded ? Check : Plus}
-                  variant={manga.isAdded ? "active" : "primary"}
-                  onClick={(e) => { e.stopPropagation(); handleToggleAdd(manga.id); }}
+                  icon={manga.isAddedToLibrary ? Check : Plus}
+                  variant={manga.isAddedToLibrary ? "active" : "primary"}
+                  onClick={(e) => { e.stopPropagation(); handleToggleAdd(manga.externalId); }}
                   className="absolute top-2 right-2 w-10 h-10 shadow-lg backdrop-blur-md bg-opacity-90"
                 />
               </div>
             ))}
           </div>
+          {!loading && hasMore && mangas.length > 0 && (
+            <div ref={lastMangaElementRef} className="h-10 w-full" />
+          )}
         </div>
       </div>
     </div>

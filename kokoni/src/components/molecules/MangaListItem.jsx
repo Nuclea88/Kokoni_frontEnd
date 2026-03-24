@@ -2,7 +2,7 @@ import { Check, Plus } from 'lucide-react';
 import ListButton from "../atoms/ListButton";
 import GenreTag from '../atoms/GenreTag';
 
-const MangaListItem = ({ title, chapters, cover, isAdded, onClick, onAddClick, genres = []}) => {
+const MangaListItem = ({ title, author, cover, isAdded, onClick, onAddClick, genres = [] }) => {
   return (
     <div 
       className="flex items-center space-x-4 bg-surface/30 border border-white/5 leaf-shape p-2.5 hover:bg-surface/50 transition-colors cursor-pointer group"
@@ -25,7 +25,7 @@ const MangaListItem = ({ title, chapters, cover, isAdded, onClick, onAddClick, g
           {title}
         </h3>
         <p className="text-[10px] text-textMuted font-bold mt-1 uppercase tracking-widest truncate">
-          {chapters} Capítulos
+          {author} 
         </p>
         {genres && genres.length > 0 && (
           <div className="flex space-x-2 mt-2">
@@ -41,7 +41,7 @@ const MangaListItem = ({ title, chapters, cover, isAdded, onClick, onAddClick, g
           icon={isAdded ? Check : Plus} 
           variant={isAdded ? "active" : "primary"}
           onClick={(e) => { 
-            e.stopPropagation(); // Evita que al dar al botón se abra la página de detalles
+            e.stopPropagation(); 
             onAddClick(e); 
           }}
         />
@@ -49,4 +49,4 @@ const MangaListItem = ({ title, chapters, cover, isAdded, onClick, onAddClick, g
     </div>
   );
 };
-export default MangaListItem
+export default MangaListItem;

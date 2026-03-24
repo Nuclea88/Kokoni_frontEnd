@@ -1,17 +1,16 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
 
 @theme {
-  --color-background: #0a0a0e;
-  --color-surface: #15151e;
-  --color-primary: #00e5ff;
-  --color-secondary: #a32cc4;
+  --color-background: #15151e;
+  --color-surface: #2C2B32;
+  --color-primary: #56F1E0;
+  --color-secondary: #CA98FF;
   --color-textMain: #ffffff;
-  --color-textMuted: #8b8b9d;
+  --color-textMuted: #CFC2D7;
   --font-sans: 'Inter', ui-sans-serif, system-ui;
   
   --background-image-kokoni-gradient: linear-gradient(135deg, #a32cc4 0%, #00e5ff 100%);
-  
   --animate-fade-in-up: fade-in-up 0.5s ease-out;
   @keyframes fade-in-up {
     0% {
@@ -49,5 +48,19 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+  .leaf-shape {
+    border-top-left-radius: 2rem;   
+    border-bottom-right-radius: 2rem;
+    border-top-right-radius: 0rem;   
+    border-bottom-left-radius: 0rem;
+  }
+  
+  
+  .leaf-shape-xl {
+    border-top-left-radius: 2.5rem;  
+    border-bottom-right-radius: 2.5rem;
+    border-top-right-radius: 0rem;
+    border-bottom-left-radius: 0rem;
   }
 }

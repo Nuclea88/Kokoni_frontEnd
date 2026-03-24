@@ -8,6 +8,7 @@ import  MediaCard  from '../components/molecules/MediaCard';
 import  MangaListItem  from '../components/molecules/MangaListItem';
 import ListButton from '../components/atoms/ListButton';
 import mangaService from '../services/mangaService';
+import trackerService from '../services/trackerService';
 
 
 const Explore = () => {
@@ -46,9 +47,27 @@ const Explore = () => {
         return () => clearTimeout(timeoutId);
     }, [searchTerm, page]);
 
-  const handleToggleAdd = (id) => {
-    // Aquí implementaremos la llamada a Spring Boot
-    console.log("Manga ID pulsado para añadir/quitar:", id);
+  const handleToggleAdd = async (externalId, event) => {
+    event.stopPropagation(); 
+    
+    const targetManga = mangas.find(m => m.externalId === externalId);
+    
+    try {
+      if (targetManga.isAddedToLibrary) {
+        // En un futuro borraremos de aquí. Como Explore no sabe el trackerId exacto por el DTO, 
+        // de momento dejaremos que si pulsas de nuevo, te mande a MangaDetails para borrarlo.
+        console.log("Ya está en tu biblioteca.");
+        return;
+      }
+      await trackerService.add(externalId);
+      setMangas(prevMangas => prevMangas.map(m => 
+        m.externalId === externalId ? { ...m, isAddedToLibrary: true } : m
+      ));
+      
+    } catch (error) {
+      console.error("Error al interactuar con el Tracker:", error);
+      alert("Hubo un problema de conexión con tu biblioteca.");
+    }
   };
 
     const observer = useRef();

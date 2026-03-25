@@ -5,6 +5,11 @@ const customListService = {
     const response = await api.get('/api/lists');
     return response.data;
   },
+
+  getListDetails: async (listId) => {
+    const response = await api.get(`/api/lists/${listId}`);
+    return response.data;
+  },
   
   createList: async (listName) => {
     const response = await api.post('/api/lists', { 

@@ -6,43 +6,36 @@ import  SettingToggleRow  from '../components/molecules/SettingToggleRow';
 import Button from '../components/atoms/Button';
 import { AuthContext } from '../context/AuthContext';
 
-
-
 const Settings = () => {
   const { user, logout } = useContext(AuthContext);
   const [theme, setTheme] = useState(true);
   const [glass, setGlass] = useState(false);
   const [density, setDensity] = useState(true);
+
   return (
-    <div className="flex flex-col min-h-screen bg-background pb-32 animate-fade-in-up md:max-w-md md:mx-auto">
-      
-      {/* 1. Header Exacto al Figma */}
-      <div className="px-6 pt-10 pb-4 sticky top-0 bg-background/90 backdrop-blur-md z-30 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+    <main className="flex flex-col min-h-screen bg-background pb-32 animate-fade-in-up md:max-w-md md:mx-auto">
+      <header className="px-6 pt-10 pb-4 sticky top-0 bg-background/90 backdrop-blur-md z-30 flex items-center justify-between">
+        <hgroup className="flex items-center space-x-4">
           <Menu className="w-6 h-6 text-textMuted cursor-pointer hover:text-white" />
           <h1 className="text-xl font-bold text-white tracking-tight">Kokoni</h1>
-        </div>
+        </hgroup>
         <Search className="w-6 h-6 text-secondary cursor-pointer hover:text-white" />
-      </div>
-      <div className="px-6 flex flex-col space-y-6 pt-2">
-        
-        {/* 2. Tarjeta del Perfil */}
+      </header>
+      <section className="px-6 flex flex-col space-y-6 pt-2">
         <UserProfileCard 
           username={user?.username || 'Reaper'}
           rank={user?.rankName || 'NOVICE RANK'}
           level={user?.level || 1}
           avatar={user?.avatarUrl || "https://img.freepik.com/vector-premium/chica-anime-chill-lofi_698903-8153.jpg"}  
         />
-        {/* 3. Bloque de Estadísticas */}
-        <div className="flex flex-col space-y-4">
-          
+        <article className="flex flex-col space-y-4">
           <StatCard 
             title="TOTAL CAPÍTULOS LEÍDOS"
             value={user?.totalChaptersRead || 0}
             icon={BookOpen}
             borderColor="border-l-primary"
           />
-          <div className="grid grid-cols-2 gap-4">
+          <nav className="grid grid-cols-2 gap-4">
             <StatCard 
               title="RACHA"
               value={user?.streakDays || 0}
@@ -59,14 +52,13 @@ const Settings = () => {
               progressColor="bg-secondary"
               borderColor="border-l-secondary"
             />
-          </div>
-        </div>
-        {/* 4. Preferencias y Aspecto */}
-        <div>
+          </nav>
+        </article>
+        <fieldset className="border-0">
           <h3 className="text-[10px] uppercase font-bold tracking-[0.15em] text-textMuted mb-3 px-2">
             APPEARANCE & INTERFACE
           </h3>
-          <div className="flex flex-col rounded-[24px] border border-white/5 bg-surface/20 overflow-hidden">
+          <nav className="flex flex-col rounded-[24px] border border-white/5 bg-surface/20 overflow-hidden">
             <SettingToggleRow 
               icon={Palette} 
               title="Obsidian Deep Theme" 
@@ -85,14 +77,13 @@ const Settings = () => {
               active={density} 
               onToggle={() => setDensity(!density)} 
             />
-          </div>
-        </div>
-        {/* 5. Botonera Final de Acción */}
-        <div className="flex flex-col space-y-3 pt-2">
+          </nav>
+        </fieldset>
+        <nav className="flex flex-col space-y-3 pt-2">
           <Button 
             variant="primary" 
             icon={Cloud} 
-            className="py-5" // Un poco más de cuerpo como en el Figma
+            className="py-5" 
             onClick={() => console.log('Sincronizando...')}
             >
             Sync Data to Nebula Cloud
@@ -105,9 +96,9 @@ const Settings = () => {
             >
             Logout Session
         </Button>
-        </div>
-      </div>
-    </div>
+        </nav>
+      </section>
+    </main>
   );
 };
 export default Settings;

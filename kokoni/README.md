@@ -1,16 +1,32 @@
-# React + Vite
+# Kokoni - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Introducción (General)
+Bienvenido al frontend de **Kokoni**, un gestor avanzado de medios y lecturas enfocado principalmente en mangas, manhwas y otros formatos. Esta interfaz de usuario permite a los lectores buscar, descubrir y hacer seguimiento de su progreso de lectura mediante una experiencia visual atractiva y fluida, construida sobre tecnologías web modernas.
 
-Currently, two official plugins are available:
+Kokoni Frontend está desarrollado principalmente con React (Vite) y diseñado utilizando Tailwind CSS para ofrecer un entorno de usuario altamente personalizable, responsivo y adaptado tanto a escritorio como a móvil.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Detalles Técnicos (Específico)
+### Tecnologías Utilizadas
+- **React.js (Vite):** Framework principal para renderizar la UI de manera eficiente y rápida.
+- **Tailwind CSS:** Para el estilado de componentes y un sistema de diseño consistente basado en clases de utilidad.
+- **React Router DOM:** Manejo de rutas, navegación privada (`PrivateRoute`) y estado en el flujo de la aplicación.
+- **Lucide React:** Colección de iconos modernos y ligeros.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Arquitectura de Componentes (Atomic Design)
+El proyecto está estructurado bajo la filosofía de Diseño Atómico (*Atomic Design*) para maximizar la reutilidad:
+- `/components/atoms:` Componentes básicos indivisibles (Ej. `Button.jsx`, `Tag.jsx`, `Input.jsx`).
+- `/components/molecules:` Agrupación simple de átomos (Ej. `MediaCard.jsx`, `MangaListItem.jsx`).
+- `/components/organisms:` Estructuras complejas o secciones completas (Ej. `TopNavbar.jsx`, `BottomNavbar.jsx`).
+- `/pages:` Las vistas principales que usan directamente el router (Ej. `Home.jsx`, `Explore.jsx`, `Settings.jsx`).
 
-## Expanding the ESLint configuration
+### Enfoque de Accesibilidad y Buenas Prácticas
+Se aplica un plan de Accesibilidad Web enfocado a utilizar HTML5 puramente semántico (`<main>`, `<article>`, `<section>`, `<nav>`, `<figure>`), reduciendo a la mínima expresión el uso de contenedores genéricos vacíos para mejorar el SEO y los lectores de pantalla. Las interacciones de la base de usuarios están ligadas a herramientas accesibles o manejadores explícitos.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Configuración y Despliegue
+Para correr el proyecto en local:
+1. Asegúrate de tener Node.js instalado.
+2. Clona el repositorio y navega a la carpeta de este backend.
+3. Ejecuta `npm install` para instalar dependencias.
+4. Ejecuta `npm run dev` para levantar el servidor de desarrollo de Vite.

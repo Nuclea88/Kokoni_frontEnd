@@ -7,6 +7,7 @@ import { PrivateRoute } from './PrivateRoute';
 import { MangaDetails } from '../pages/MangaDetails';
 import  Explore  from '../pages/Explore';
 import Settings from '../pages/Settings';
+import AddCustomMedia from '../pages/AddCustomMedia';
 
 const router = createBrowserRouter([
 
@@ -35,8 +36,8 @@ const router = createBrowserRouter([
         element: <MangaDetails />
       },
       {
-        path: "novedad",
-        element: <div className="animate-fade-in-up uppercase text-xs font-bold text-primary">Sección Novedades: próximamente</div>
+        path: "Lista Personalizada",
+        element: <AddCustomMedia />
       },
       {
         path: "explorar",

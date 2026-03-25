@@ -7,19 +7,30 @@ import { useNavigate } from 'react-router';
 import logoLila from '../assets/kokoni_lila.png';
 
 export default function Register() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { login } = useContext(AuthContext); 
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: ""
+    });
+  const { login, register } = useContext(AuthContext); 
   const navigate = useNavigate();
+
+  const handleChange = (event) => {
+    setForm({
+    ...form,
+    [event.target.name]: event.target.value
+    });
+    };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    /*
-      En el futuro harías: await fetch('http://localhost:8080/register', { ... });
-    */
-    // Tras el registro exitoso, auto-logueamos:
-    await login(email, password);
-    navigate('/dashboard');
+    try {
+      await register(form.username, form.email, form.password); 
+        await login(form.email, form.password);
+        navigate('/dashboard');
+    } catch (err) {
+      console.error("Fallo de registro:", err);
+    }
   };
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">
@@ -41,23 +52,26 @@ export default function Register() {
           <Input 
             icon={User} 
             type="text" 
+            name= "username"
             placeholder="Nombre de Usuario" 
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={form.username}
+            onChange={handleChange} required
           />
           <Input 
             icon={Mail} 
-            type="email" 
+            type="email"
+            name= "email" 
             placeholder="Correo electrónico" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={form.email}
+            onChange={handleChange} required
           />
           <Input 
             icon={Lock} 
             type="password" 
+            name= "password"
             placeholder="Contraseña" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={form.password}
+            onChange={handleChange} required
           />
           
           <Button variant="primary" type="submit" className="mt-4">

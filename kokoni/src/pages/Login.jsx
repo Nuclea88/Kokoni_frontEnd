@@ -6,10 +6,8 @@ import  Button  from '../components/atoms/Button';
 import { useNavigate } from 'react-router';
 import logoLila from '../assets/kokoni_lila.png';
 
-export default function Login() {
-  const [email, setEmail] = useState('');
+export default function Login() {;
   const [error, setError] = useState('');
-  const [password, setPassword] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -84,7 +82,7 @@ export default function Login() {
         </form>
         <div className="mt-6 flex items-center space-x-2 text-sm text-textMuted">
           <span>¿No tienes cuenta?</span>
-          <span className="text-primary font-semibold cursor-pointer hover:underline">Regístrate</span>
+          <span onClick={() => navigate('/register')} className="text-primary font-semibold cursor-pointer hover:underline">Regístrate</span>
         </div>
       </div>
     </div>

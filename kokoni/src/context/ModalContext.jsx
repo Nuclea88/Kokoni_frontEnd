@@ -25,14 +25,14 @@ export const ModalProvider = ({ children }) => {
     openModal({
       title: title,
       content: (
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+        <section className="flex flex-col items-center text-center space-y-4">
+          <figure className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
             <Info className="w-8 h-8 text-primary" />
-          </div>
+          </figure>
           <p className="text-textMuted text-sm font-medium leading-relaxed">
             {message}
           </p>
-        </div>
+        </section>
       ),
       footer: (
         <Button variant="primary" onClick={closeModal}>

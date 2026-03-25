@@ -3,9 +3,11 @@ import  authService  from '../services/authService';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('kokoni_token') || null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchUser = async () => {
       if (token) {

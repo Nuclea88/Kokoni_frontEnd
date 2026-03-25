@@ -14,13 +14,13 @@ const ChapterButton = ({ chapter, isLatest = false, onClick, isReaded= false, re
       leaf-shape text-sm font-black transition-all hover:scale-105 active:scale-95 border-2 ${stateClasses}`}
         
     >
-      <span className={`${isLatest  || isReaded ? 'text-primary' : ''}text-base`}>{chapter}</span>
+      <span aria-label="capítulo" className={`${isLatest  || isReaded ? 'text-primary' : ''}text-base`}>{chapter}</span>
        {isLatest ? (
-        <span className="block text-[8px] text-secondary tracking-widest uppercase mt-0.5 font-black">
+        <span aria-label= "estado" className="block text-[8px] text-secondary tracking-widest uppercase mt-0.5 font-black">
             Visto
         </span>
       ) : isReaded ? (
-        <span className="block text-[7px] text-primary/60 tracking-tighter mt-1 font-bold">
+        <span aria-label= "estado o fecha de lectura" className="block text-[7px] text-primary/60 tracking-tighter mt-1 font-bold">
             {readDate ? readDate : 'LEÍDO'}
         </span>
       ) : null}

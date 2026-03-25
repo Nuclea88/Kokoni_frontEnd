@@ -16,6 +16,11 @@ const trackerService = {
   },
   remove: async (trackerId) => {
     await api.delete(`/api/trackers/${trackerId}`);
-  }
+  },
+
+  getMyTrackers: async () => {
+    const response = await api.get('/api/trackers');
+    return response.data;
+  },
 };
 export default trackerService;

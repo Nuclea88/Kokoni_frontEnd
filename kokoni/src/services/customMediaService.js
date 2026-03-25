@@ -10,21 +10,20 @@ const customMediaService = {
     const response = await api.get(`/api/custom-media/${id}`);
     const data = response.data;
     return {
-       id: data.id, 
-       title: data.title,
+       ...data,
        author: data.customAuthor || 'Autor Desconocido',
        imageUrl: (data.imageUrl && data.imageUrl.trim() !== '') ? data.imageUrl : null, 
        totalChapters: data.customTotalChapters || 0,
        status: data.customStatus || 'CUSTOM',
        description: data.description || 'Ficha personalizada subida por ti a Kokoni.',
        genres: ['Custom', 'Público'],
-       averageScore: '-',
-       rankPosition: null,
-       readersCount: 1,
+      //  averageScore: '-',
+      //  rankPosition: null,
+      //  readersCount: 1,
     
-       isAddedInTracker: false,
-       trackerId: null,
-       readChapters: []
+      //  isAddedInTracker: false,
+      //  trackerId: null,
+      //  readChapters: []
     };
   }
 };

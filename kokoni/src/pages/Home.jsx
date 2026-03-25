@@ -1,30 +1,89 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import  Tag  from '../components/atoms/Tag';
 import MediaCard from '../components/molecules/MediaCard';
 import { Plus } from 'lucide-react';
 import ListButton from '../components/atoms/ListButton';
+import trackerService from '../services/trackerService';
+import customListService from '../services/customListService';
 
 const Home = () => {
     const navigate = useNavigate();
     const [activeFilter, setActiveFilter] = useState('Leyendo');
+    const [trackers, setTrackers] = useState([]);
+    const [customLists, setCustomLists] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [listItems, setListItems] = useState([]);
 
-    const filters = ['Leyendo', 'Leído', 'Pospuesto', 'Lista XX'];
+    const statusMap = {
+        'Leyendo': 'IN_PROGRESS',
+        'Leído': 'COMPLETED',
+        'Pospuesto': 'DROPPED',
+        'Pendiente': 'PLANNING'
+    };
 
-    const trendingManga = [
-    { title: 'Naon Ganasis', chapter: 'Capítulo 82 • 85% leido', image: 'https://images.unsplash.com/photo-1578632738981-43c9ad4698d8?q=80&w=400', status: 'Updating' },
-    { title: 'Shadow Realm', chapter: 'Vol03 • Hall 06', image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=400', status: 'Hot' },
-  ];
-  const allManga = [
-    { title: 'Obsidian Protocol', chapter: 'Leer capítulo 124', image: 'https://images.unsplash.com/photo-1541560052-77ec1bbc09f7?q=80&w=400' },
-    { title: 'Cyber Spirit', chapter: 'Capítulo 45', image: 'https://images.unsplash.com/photo-1560972550-aba3456b5564?q=80&w=400' },
-    { title: 'Golden Hour', chapter: 'Capítulo 12', image: 'https://images.unsplash.com/photo-1580477667995-2b94f01c9516?q=80&w=400' },
-    { title: 'Neon Pulse', chapter: 'Vol 02', image: 'https://images.unsplash.com/photo-1614728263952-84ea206f99b6?q=80&w=400' },
-  ];
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const [trackerData, listData] = await Promise.all([
+                    trackerService.getMyTrackers(),
+                    customListService.getMyLists()
+                ]);
+                setTrackers(trackerData);
+                setCustomLists(listData);
+            } catch (error) {
+                console.error("Error cargando el Home:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadData();
+    }, []);
+
+    useEffect(() => {
+        const fetchListItems = async () => {
+            const targetList = customLists.find(l => l.name === activeFilter);
+            if (targetList) {
+                const detailedList = await customListService.getListDetails(targetList.id);
+                setListItems(detailedList.items || []);
+            } else {
+                setListItems([]);
+            }
+        };
+        fetchListItems();
+    }, [activeFilter, customLists]);
+
+    const filteredDisplay = () => {
+        
+        if (statusMap[activeFilter]) {
+            return trackers
+                .filter(t => t.userStatus === statusMap[activeFilter])
+                .map(t => ({
+                    id: t.externalId,
+                    title: t.mangaTitle,
+                    image: t.mangaImageUrl,
+                    chapter: `Cap. ${t.progressUnit || 0} / ${t.totalChapters || '??'}`
+                }));
+        }
+        return listItems.map(item => ({
+            id: item.externalId,
+            title: item.title,
+            image: item.imageUrl,
+            chapter: "En lista"
+        }));
+    };
+    if (loading) return <div className="text-primary p-10 text-center animate-pulse">Abriendo Kokoni...</div>;
+
+
+    
+    // const readingMangas = trackers.filter(t => t.status === 'IN_PROGRESS');
+    // if (loading) return <div className="text-primary p-10 text-center animate-pulse">Abriendo tu biblioteca...</div>;
+
+
 
   return (
-    <div className="flex flex-col space-y-8">
-      
+    <div className="flex flex-col space-y-8 animate-fade-in">
+      {trackers.filter(t => t.userStatus === 'IN_PROGRESS').length > 0 && (
       <section>
         <div className="flex justify-between items-end mb-4 px-2">
             <h2 className="text-textMuted text-[10px] font-black tracking-[0.2em] uppercase">CONTINÚA LEYENDO</h2>
@@ -32,51 +91,45 @@ const Home = () => {
         </div>
         
         <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-            {trendingManga.map((manga, idx) => (
-              <div key={idx} className="min-w-[280px] bg-surface/40 border border-white/5 rounded-2xl p-3 flex space-x-4 items-center">
-                <img src={manga.image} className="w-16 h-20 object-cover rounded-lg shadow-lg" alt="" onClick={() => navigate(`/dashboard/manga/${idx}`)}/>
+         {trackers.filter(t => t.userStatus === 'IN_PROGRESS').map((manga) => (
+                            <div key={manga.trackerId} 
+                                 onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}
+             className="min-w-[280px] bg-surface/40 border border-white/5 leaf-shape p-3 flex space-x-4 items-center cursor-pointer hover:bg-surface/60 transition-all">
+                <img src={manga.mangaImageUrl} className="w-16 h-20 object-cover rounded-lg shadow-lg" alt={manga.mangaTitle} onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}/>
                 <div className="flex flex-col">
-                  <h4 className="text-sm font-bold text-white uppercase">{manga.title}</h4>
-                  <p className="text-[10px] text-textMuted mb-2">{manga.chapter}</p>
+                  <h4 className="text-sm font-bold text-white uppercase">{manga.mangaTitle}</h4>
+                  <p className="text-[10px] text-textMuted mb-2"> Capítulo {manga.progressUnit} • {manga.totalChapters}</p>
                   <div className="w-full bg-background/50 h-1 rounded-full overflow-hidden">
-                    <div className="bg-kokoni-gradient h-full w-[85%] rounded-full shadow-[0_0_10px_rgba(0,229,255,0.5)]"></div>
+                    <div className="bg-kokoni-gradient h-full w-[85%] rounded-full shadow-[0_0_10px_rgba(0,229,255,0.5)]"
+                         style={{ width: `${(manga.progressUnit / manga.totalChapters || 1) * 100}%` }}></div>
                   </div>
                 </div>
               </div>
             ))}
         </div>
       </section>
+      )}
       {/* Filtros de Estado */}
       <section className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
-        {filters.map(f => (
-          <Tag key={f} active={activeFilter === f} onClick={() => setActiveFilter(f)}>{f}</Tag>
-        ))}
-      </section>
+        {['Leyendo', 'Leído', 'Pospuesto', 'Pendiente', ...customLists.map(l => l.name)].map(f => (
+                    <Tag key={f} active={activeFilter === f} onClick={() => setActiveFilter(f)}>{f}</Tag>
+                ))}
+            </section>
+
       <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        {allManga.map((manga, idx) => (
-          <MediaCard key={idx} {...manga} onClick={() => navigate(`/dashboard/manga/${idx}`)}/>
-        ))}
-        
-        <div className="fixed bottom-24 right-6 z-50">
-          <ListButton 
-            icon={Plus} 
-            variant="solid" 
-            className="w-14 h-14" 
-            onClick={() => console.log('Acción: Añadir manga personalizado o buscar')}
-          />
-        </div>
-      </section>
-      <section className="glass-panel p-6 flex justify-around">
-        <div className="text-center">
-          <p className="text-xs text-textMuted uppercase font-bold tracking-tighter">Capítulos</p>
-          <p className="text-xl font-black text-white">1,248</p>
-        </div>
-        <div className="w-[1px] bg-white/5 h-10 self-center"></div>
-        <div className="text-center">
-          <p className="text-xs text-textMuted uppercase font-bold tracking-tighter">Streak</p>
-          <p className="text-xl font-black text-white">14 <span className="text-[10px] text-primary">DayS</span></p>
-        </div>
-      </section>
+         {filteredDisplay().map((manga) => (
+                    <MediaCard 
+                        key={manga.id} 
+                        title={manga.title} 
+                        cover={manga.image} 
+                        subtitle={manga.chapter}
+                        onClick={() => navigate(`/dashboard/manga/${manga.id}`)}
+                    />
+                ))}
+            </section>
+            <div className="fixed bottom-24 right-6 z-50">
+                <ListButton icon={Plus} variant="solid" className="w-14 h-14 shadow-2xl" onClick={() => navigate('/dashboard/explorar')} />
+            </div>
     </div>
   );
 };

@@ -1,0 +1,13 @@
+const StatItem = ({ value, label, valueColor = "text-white", hasGlow = false }) => {
+  return (
+    <output className="flex flex-col items-center justify-center bg-surface/80  leaf-shape min-w-[76px] px-2 py-3">
+      <p className={`font-bold text-lg ${valueColor} ${hasGlow ? 'drop-shadow-[0_0_8px_var(--color-primary)]' : ''}`}>
+        {value}
+      </p>
+      <p className="text-[10px] text-textMuted uppercase tracking-widest font-black mt-1">
+        {label}
+      </p>
+    </output>
+  );
+};
+export default StatItem;

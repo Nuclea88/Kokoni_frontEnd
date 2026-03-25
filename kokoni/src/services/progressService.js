@@ -2,8 +2,7 @@ import api from './api';
 const progressService = {
   markAsRead: async (trackerId, chapterNum) => {
     const response = await api.post(`/api/trackers/${trackerId}/progress`, { 
-      progressUnit: chapterNum,
-      readDate: new Date().toISOString().split('T')[0] // Fecha de hoy
+      progressUnit: chapterNum
     });
     return response.data;
   },

@@ -1,24 +1,41 @@
-import { Play, Bookmark, ArrowDownUp } from 'lucide-react';
+import { Play, Bookmark, ArrowDownUp, ListOrdered, CheckCircle } from 'lucide-react';
 import  Button  from '../components/atoms/Button';
 import  StatItem  from '../components/atoms/StatItem';
 import  ChapterButton  from '../components/atoms/ChapterButton';
 import DetailHeader from '../components/molecules/DetailHeader';
 import GenreTag from '../components/atoms/GenreTag';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router';
 import mangaService from '../services/mangaService';
 import trackerService from '../services/trackerService';
+import progressService from '../services/progressService';
+import customMediaService from '../services/customMediaService';
+import { useModal } from '../context/ModalContext';
+import ListOption from '../components/molecules/ListOption';
+import customListService from '../services/CustomListService';
+
 
 export const MangaDetails = () => {
 
 const { id } = useParams(); 
   const [manga, setManga] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { showAlert, openModal, closeModal } = useModal();
+  const [lists, setLists] = useState([]);
+  const fetchedId = useRef(null);
 
   useEffect(() => {
-    
+        customListService.getMyLists().then(setLists).catch(console.error);
+    }, []);
+
+  useEffect(() => {
+    if (fetchedId.current === id) return;
+    fetchedId.current = id;
+
     const fetchDetails = async () => {
       try {
+        setError(null);
         const isCustomMedia = !isNaN(id);
           if (isCustomMedia) {
           const data = await customMediaService.getById(id);
@@ -29,6 +46,7 @@ const { id } = useParams();
        }
       } catch (error) {
         console.error("Error al obtener los detalles del manga:", error);
+        setError("¡Ups! Parece que los servidores de MangaDex están tomando un café. Reinténtalo en unos segundos.");
       } finally {
         setLoading(false);
       }
@@ -37,58 +55,155 @@ const { id } = useParams();
   }, [id]);
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-primary animate-pulse w-full text-center">Analizando datos de Kokoni...</p></div>;
+    if (error) return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+      <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+        <span className="text-4xl">📡</span>
+      </div>
+      <h2 className="text-xl font-black text-white mb-2">Error de Conexión</h2>
+      <p className="text-textMuted text-sm mb-8 max-w-xs">{error}</p>
+      <Button variant="primary" onClick={() => window.location.reload()}>Reintentar conexión</Button>
+    </div>
+  );
   if (!manga) return <div className="min-h-screen bg-background flex items-center justify-center text-white">Manga no encontrado</div>;
 
   const chapters = Array.from(
-    { length: Math.min(12, manga.totalChapters) }, 
+    { length: Math.min(manga.totalChapters) }, 
     (_, i) => manga.totalChapters - i
   );
 
   const handleChapterClick = async (chapterNum, isAlreadyRead) => {
     if (!manga.trackerId) {
-      alert("Primero añade el manga a tu biblioteca");
+      showAlert("Primero añade el manga a tu biblioteca");
       return;
     }
+    if (loading) return;
     
     try {
       if (isAlreadyRead) {
         await progressService.unmarkAsRead(manga.trackerId, chapterNum);
+        setManga(prev => ({
+          ...prev,
+          readChapters: prev.readChapters.filter(p => p.progressUnit !== chapterNum)
+        }));
       } else {
-        await progressService.markAsRead(manga.trackerId, chapterNum);
-      }
-       if (!isAlreadyRead && manga.status === 'PLANNING') {
-         await trackerService.updateStatus(manga.trackerId, 'IN_PROGRESS');
-       }
-
-      const updatedManga = await mangaService.getById(id);
-      setManga(updatedManga);
-    } catch (error) {
-      console.error("Error al actualizar progreso", error);
-    }
-  };
-
-  const handleBookmarkClick = async () => {
-    try {
-      if (manga.isAddedInTracker) {
-        // SI YA ESTÁ: Lo borramos usando el ID único de seguimiento
-        if (manga.trackerId) {
-           await trackerService.remove(manga.trackerId);
-           setManga(prev => ({ ...prev, isAddedInTracker: false, trackerId: null, readChapters: [] }));
-        }
-      } else {
-        const addedTrackerItem = await trackerService.add(id); 
-      
-        setManga(prev => ({ 
-          ...prev, 
-          isAddedInTracker: true, 
-          trackerId: addedTrackerItem.id,
-          readChapters: [] 
+        const newProgress = await progressService.markAsRead(manga.trackerId, chapterNum);
+        setManga(prev => ({
+          ...prev,
+          readChapters: [...(prev.readChapters || []), newProgress]
         }));
       }
+      
+       if (!isAlreadyRead && manga.status === 'PLANNING') {
+         trackerService.updateStatus(manga.trackerId, 'IN_PROGRESS').catch(e => console.error(e));
+       }
     } catch (error) {
-      console.error("Error al gestionar el Bookmark:", error);
+      console.error("Error al gestionar el capítulo", error);
+      showAlert("Error al gestionar el capítulo", error);
     }
   };
+
+ const handleBookmarkClick = async () => {
+
+    if (manga.isAddedInTracker) {
+      try{
+        await trackerService.remove(manga.trackerId);
+        await customListService.removeFromAllLists(id);
+        setManga(prev => ({ ...prev, isAddedInTracker: false, trackerId: null, readChapters: [] }));
+        showAlert("Eliminado", "Se ha quitado de tu biblioteca y de todas tus listas.");
+       } catch (e) {
+        console.error(e);
+        showAlert("Error", "No se pudo limpiar la biblioteca correctamente.");
+      }
+      return;
+    }
+    
+    openModal({
+      title: "Elije dónde guardarlo",
+      content: (
+        <div className="space-y-3">
+           <ListOption 
+              type="library" 
+              title="Biblioteca General" 
+              subtitle="Sin lista específica" 
+              onClick={() => confirmSave(null)} 
+           />
+           <div className="flex items-center space-x-2 py-2">
+              <div className="h-[1px] flex-1 bg-white/5"></div>
+              <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">O en tus listas</span>
+              <div className="h-[1px] flex-1 bg-white/5"></div>
+           </div>
+           {/* OPCIÓN 2: Recorremos tus Custom Lists */}
+           {lists.length > 0 ? lists.map(list => (
+              <ListOption 
+                key={list.id} 
+                title={list.name} 
+                subtitle={`${list.isPublic ? 'Pública' : 'Privada'} • ${list.itemCount} items`}
+                onClick={() => confirmSave(list.id)} 
+              />
+           )) : (
+               <p className="text-center text-[10px] text-white/30 italic">No tienes listas personalizadas creadas aún.</p>
+           )}
+        </div>
+      )
+    });
+  };
+
+const confirmSave = async (listId) => {
+    try {
+      // 1. Siempre lo añadimos a la Biblioteca (Tracker)
+      const resp = await trackerService.add(id); 
+      
+      // 2. Si eligió una lista, lo vinculamos también
+      if (listId) {
+        await customListService.addCustomMediaToList(listId, id);
+      }
+      
+      // 3. Actualizamos el estado visual de la página
+      setManga(prev => ({ ...prev, isAddedInTracker: true, trackerId: resp.trackerId }));
+      
+      // 4. Cerramos el modal
+      closeModal();
+      
+      // 5. ¡Aviso visual premium!
+      showAlert("¡Añadido con éxito!", "Ya puedes encontrarlo en tu biblioteca.");
+    } catch (e) {
+      console.error(e);
+      showAlert("Error al guardar", "Hubo un problema al conectar con el servidor.");
+    }
+  };
+
+
+
+  //   try {
+  //     if (manga.isAddedInTracker) {
+  //       // ¿Qué pasa al desmarcar?
+  //       if (manga.trackerId) {
+  //          await trackerService.remove(manga.trackerId);
+  //          setManga(prev => ({ ...prev, isAddedInTracker: false, trackerId: null, readChapters: [] }));
+  //       }
+  //     } else {
+  //       // ¿Qué pasa al guardar?
+  //       const response = await trackerService.add(id); 
+  //       console.log("RESPUESTA DEL SERVIDOR:", response);
+  //       setManga(prevManga => ({ 
+  //           ...prevManga, 
+  //           isAddedInTracker: true, 
+  //           trackerId: response.trackerId, // <--- ¡¡OJO AQUÍ!! TIENE QUE PONER ".trackerId"
+  //           readChapters: [] 
+  //       }));
+  //     }
+  //   } catch (error) { 
+  //       console.error("Error al gestionar el Bookmark:", error);
+  //   }
+  // };
+
+  const lastRead = manga.readChapters?.length > 0 
+    ? Math.max(...manga.readChapters.map(c => c.progressUnit)) 
+    : 0;
+
+  const nextChapter = lastRead < manga.totalChapters ? lastRead + 1 : manga.totalChapters;
+  const isAllRead = lastRead === manga.totalChapters && manga.totalChapters > 0;
 
   return (
     <div className="flex flex-col bg-background min-h-screen pb-10 animate-fade-in-up">
@@ -110,9 +225,10 @@ const { id } = useParams();
         </div>
         <div className="flex space-x-3 pt-2">
           <div className="flex-1">
-             <Button variant="primary" className="flex items-center justify-center py-[15px] px-0 rounded-tl-[16px] rounded-br-[16px] rounded-tr-[4px] rounded-bl-[4px]">
+             <Button  onClick={() => handleChapterClick(nextChapter, false)} 
+                      variant="primary" className="flex items-center justify-center py-[15px] px-0 rounded-tl-[16px] rounded-br-[16px] rounded-tr-[4px] rounded-bl-[4px]">
                 <Play className="w-4 h-4 mr-2 fill-white" />
-                Leer capítulo {manga.totalChapters}
+                {isAllRead ? `Releer capítulo ${manga.totalChapters}` : `Leer capítulo ${nextChapter}`}
              </Button>
           </div>
           <div className="w-16">
@@ -146,24 +262,19 @@ const { id } = useParams();
             // Buscamos si este capítulo concreto está en la lista de leídos
             const progress = manga.readChapters?.find(p => p.progressUnit === ch);
             const isReaded = !!progress;
+            const isLatestRead = ch === lastRead;
             const readDate = progress ? new Date(progress.readDate).toLocaleDateString() : null;
             return (
               <ChapterButton 
                 key={ch} 
                 chapter={ch} 
                 isReaded={isReaded}
-                readDate={readDate} // Pásale la fecha al átomo
+                isLatest={isLatestRead} 
+                readDate={readDate} 
                 onClick={() => handleChapterClick(ch, isReaded)}
               />
             );
           })}
-            {/* {chapters.map((ch) => (
-              <ChapterButton 
-                key={ch} 
-                chapter={ch} 
-                isLatest={ch === manga.totalChapters} 
-              />
-            ))} */}
           </div>
         </div>
       </div>

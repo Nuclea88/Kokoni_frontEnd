@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Search, Flame, Check, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
-// Rutas de tus componentes Atómicos y Moleculares
 import Input from '../components/atoms/Input';
 import Tag from '../components/atoms/Tag';
 import  MediaCard  from '../components/molecules/MediaCard';
@@ -9,6 +8,7 @@ import  MangaListItem  from '../components/molecules/MangaListItem';
 import ListButton from '../components/atoms/ListButton';
 import mangaService from '../services/mangaService';
 import trackerService from '../services/trackerService';
+import Button from '../components/atoms/Button';
 
 
 const Explore = () => {
@@ -20,6 +20,7 @@ const Explore = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState(null);
 
     useEffect(() => {
         setPage(0);
@@ -34,13 +35,15 @@ const Explore = () => {
             setLoading(true);
 
             try {
-            const data = await mangaService.search(searchTerm, page);
-            setMangas(prev => (page === 0 ? data : [...prev, ...data]));
-            setHasMore(data.length > 0);;
+                setError(null);
+                const data = await mangaService.search(searchTerm, page);
+                setMangas(prev => (page === 0 ? data : [...prev, ...data]));
+                setHasMore(data.length > 0);;
             } catch (error) {
-            console.error("Error buscando mangas", error);
+                console.error("Error buscando mangas", error);
+                setError("Parece que MangaDex no responde. Prueba a buscar de nuevo en unos segundos.")
             } finally {
-            setLoading(false);
+                setLoading(false);
             }
         };
         const timeoutId = setTimeout(fetchMangas, 500);
@@ -141,14 +144,25 @@ const Explore = () => {
                 cover={manga.imageUrl}
                 isAdded={manga.isAddedToLibrary}
                 onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}
-                onAddClick={() => handleToggleAdd(manga.externalId)}
+                onAddClick={(e) => handleToggleAdd(manga.externalId, e)}
                 genres={manga.genres || []}
               />
               </div>
             ))}
 
-            {!loading && searchTerm && mangas.length === 0 && (
-              <p className="text-textMuted text-sm text-center py-10">No hemos encontrado nada con ese nombre...</p>
+            {error && (
+              <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                <span className="text-3xl mb-3">📡</span>
+                <p className="text-primary text-sm font-bold mb-2">Error de conexión</p>
+                <p className="text-textMuted text-xs mb-4">{error}</p>
+                <Button variant="secondary" onClick={() => window.location.reload()}>Reintentar</Button>
+              </div>
+            )}
+            
+            {!loading && !error && searchTerm && mangas.length === 0 && (
+              <p className="text-textMuted text-sm text-center py-10 italic">
+                "No hemos encontrado nada con ese nombre..."
+              </p>
             )}
           </div>
 

@@ -1,0 +1,59 @@
+import { createContext, useContext, useState } from 'react';
+import Modal from '../components/atoms/Modal';
+import Button from '../components/atoms/Button';
+import { Info } from 'lucide-react';
+
+const ModalContext = createContext();
+
+export const ModalProvider = ({ children }) => {
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    title: '',
+    content: null,
+    footer: null,
+  });
+
+  const openModal = (config) => {
+    setModalConfig({ ...config, isOpen: true });
+  };
+
+  const closeModal = () => {
+    setModalConfig((prev) => ({ ...prev, isOpen: false }));
+  };
+
+  const showAlert = (message, title = "Aviso") => {
+    openModal({
+      title: title,
+      content: (
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+            <Info className="w-8 h-8 text-primary" />
+          </div>
+          <p className="text-textMuted text-sm font-medium leading-relaxed">
+            {message}
+          </p>
+        </div>
+      ),
+      footer: (
+        <Button variant="primary" onClick={closeModal}>
+          Entendido
+        </Button>
+      )
+    });
+
+  };
+  return (
+    <ModalContext.Provider value={{ openModal, closeModal, showAlert }}>
+      {children}
+      <Modal 
+        isOpen={modalConfig.isOpen} 
+        onClose={closeModal} 
+        title={modalConfig.title} 
+        footer={modalConfig.footer}
+      >
+        {modalConfig.content}
+      </Modal>
+    </ModalContext.Provider>
+  );
+};
+export const useModal = () => useContext(ModalContext);

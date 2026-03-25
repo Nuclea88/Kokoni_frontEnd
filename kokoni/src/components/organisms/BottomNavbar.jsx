@@ -1,10 +1,10 @@
-import { BookMarked, Sparkles, Compass, Settings } from 'lucide-react';
+import { BookMarked, Sparkles, Compass, Settings, PlusSquare } from 'lucide-react';
 import NavItem from '../molecules/NavItem';
 
 const BottomNavbar = () => {
   const navItems = [
     { name: 'Mis listas', path: '/dashboard', icon: BookMarked },
-    { name: 'Novedad', path: '/dashboard/novedad', icon: Sparkles },
+    { name: 'Añadir ', path: '/dashboard/Lista Personalizada', icon: PlusSquare },
     { name: 'Explorar', path: '/dashboard/explorar', icon: Compass },
     { name: 'Ajustes', path: '/dashboard/ajustes', icon: Settings },
   ];

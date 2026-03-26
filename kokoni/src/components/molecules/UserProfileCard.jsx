@@ -4,13 +4,13 @@ const UserProfileCard = ({ username, rank, avatar, level }) => {
     <section className="bg-surface/100 leaf-shape p-4 flex items-center justify-between border border-white/5 relative">
       <header className="flex items-center space-x-4">
         <figure className="relative">
-          <picture className="w-16 h-16 leaf-shape rounded-bl-[1px] bg-surface p-[2px]">
+          <div className="w-16 h-16 block aspect-square leaf-shape rounded-bl-[1px] bg-surface p-[2px]">
             <img 
               src={avatar} 
               alt={username} 
               className="w-full h-full leaf-shape object-cover bg-background" 
             />
-          </picture>
+          </div>
           <mark className="absolute -bottom-2 -right-2 bg-primary text-background text-[10px] font-black px-2 py-0.5 rounded-full border-[3px] border-surface">
             LV.{level}
           </mark>
@@ -21,7 +21,7 @@ const UserProfileCard = ({ username, rank, avatar, level }) => {
         </hgroup>
       </header>
       <button className="text-[10px] font-bold text-white border border-white/10 px-4 py-1.5 rounded-full hover:bg-white/5 transition-colors">
-        Manage
+        Gestionar
       </button>
     </section>
   );

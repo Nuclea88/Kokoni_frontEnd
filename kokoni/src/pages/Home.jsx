@@ -93,8 +93,8 @@ const Home = () => {
                   <h4 className="text-sm font-bold text-white uppercase">{manga.mangaTitle}</h4>
                   <p className="text-[10px] text-textMuted mb-2"> Capítulo {manga.progressUnit} • {manga.totalChapters}</p>
                   <figure className="w-full bg-background/50 h-1 rounded-full overflow-hidden mt-auto">
-                    <i className="bg-kokoni-gradient h-full w-[85%] rounded-full shadow-[0_0_10px_rgba(0,229,255,0.5)]"
-                         style={{ width: `${(manga.progressUnit / manga.totalChapters || 1) * 100}%` }}></i>
+                    <div className="bg-kokoni-gradient h-full rounded-full shadow-[0_0_10px_rgba(0,229,255,0.5)]"
+                         style={{ width: `${(manga.progressUnit / manga.totalChapters || 1) * 100}%` }}></div>
                   </figure>
                 </section>
               </article>

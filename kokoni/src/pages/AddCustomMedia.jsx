@@ -5,10 +5,12 @@ import Input from '../components/atoms/Input';
 import Button from '../components/atoms/Button';
 import { ArrowLeft } from 'lucide-react';
 import customListService from '../services/customListService';
+import { useModal } from '../context/ModalContext';
 
 const AddCustomMedia = () => {
 
   const navigate = useNavigate();
+  const { showAlert } = useModal();
   const [lists, setLists] = useState([]);
   const [showNewListInput, setShowNewListInput] = useState(false);
   const [newListName, setNewListName] = useState('');
@@ -44,7 +46,10 @@ const AddCustomMedia = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title) return alert("El título es obligatorio");
+    if (!formData.title) {
+        showAlert("El título es obligatorio", "Campo requerido");
+        return;
+    }
     setLoading(true);
     try {
             const newMedia = await customMediaService.create({
@@ -64,7 +69,7 @@ const AddCustomMedia = () => {
       navigate(`/dashboard/manga/${newMedia.id}`);
     } catch (error) {
       console.error(error);
-      alert("Error en la creación de ficha o asignación a lista.");
+      showAlert("Error en la creación de ficha o asignación a lista.", "Fallo al guardar");
     } finally {
       setLoading(false);
     }

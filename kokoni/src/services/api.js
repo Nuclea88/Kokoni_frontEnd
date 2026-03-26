@@ -24,8 +24,7 @@ api.interceptors.response.use(
         const isLoginRequest = error.config.url.includes('/login');
         if (error.response && (error.response.status === 401 || error.response.status === 403) && !isLoginRequest) {
             localStorage.clear();
-            alert("Tu sesión ha expirado. Por favor, vuelve a entrar.");
-            window.location.href = "/login";
+            window.dispatchEvent(new CustomEvent('sessionExpired'));
         }
   
   return Promise.reject(error);

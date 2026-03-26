@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import Modal from '../components/atoms/Modal';
 import Button from '../components/atoms/Button';
 import { Info } from 'lucide-react';
@@ -10,8 +10,17 @@ export const ModalProvider = ({ children }) => {
     isOpen: false,
     title: '',
     content: null,
+    content: null,
     footer: null,
   });
+
+  useEffect(() => {
+    const handleGlobalAlert = (e) => {
+      showAlert(e.detail.message, e.detail.title);
+    };
+    window.addEventListener('globalAlert', handleGlobalAlert);
+    return () => window.removeEventListener('globalAlert', handleGlobalAlert);
+  }, []);
 
   const openModal = (config) => {
     setModalConfig({ ...config, isOpen: true });

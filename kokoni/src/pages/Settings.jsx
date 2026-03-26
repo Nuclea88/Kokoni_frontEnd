@@ -14,13 +14,6 @@ const Settings = () => {
 
   return (
     <main className="flex flex-col min-h-screen bg-background pb-32 animate-fade-in-up md:max-w-md md:mx-auto">
-      <header className="px-6 pt-10 pb-4 sticky top-0 bg-background/90 backdrop-blur-md z-30 flex items-center justify-between">
-        <hgroup className="flex items-center space-x-4">
-          <Menu className="w-6 h-6 text-textMuted cursor-pointer hover:text-white" />
-          <h1 className="text-xl font-bold text-white tracking-tight">Kokoni</h1>
-        </hgroup>
-        <Search className="w-6 h-6 text-secondary cursor-pointer hover:text-white" />
-      </header>
       <section className="px-6 flex flex-col space-y-6 pt-2">
         <UserProfileCard 
           username={user?.username || 'Reaper'}
@@ -56,24 +49,24 @@ const Settings = () => {
         </article>
         <fieldset className="border-0">
           <h3 className="text-[10px] uppercase font-bold tracking-[0.15em] text-textMuted mb-3 px-2">
-            APPEARANCE & INTERFACE
+            APARIENCIA E INTERFAZ
           </h3>
           <nav className="flex flex-col rounded-[24px] border border-white/5 bg-surface/20 overflow-hidden">
             <SettingToggleRow 
               icon={Palette} 
-              title="Obsidian Deep Theme" 
+              title="Tema Oscuro Obsidian" 
               active={theme} 
               onToggle={() => setTheme(!theme)} 
             />
             <SettingToggleRow 
               icon={Grid} 
-              title="Enhanced Glass Effects" 
+              title="Efectos de Transparencia" 
               active={glass} 
               onToggle={() => setGlass(!glass)} 
             />
             <SettingToggleRow 
               icon={AlignLeft} 
-              title="Editorial Density" 
+              title="Densidad Editorial" 
               active={density} 
               onToggle={() => setDensity(!density)} 
             />
@@ -86,7 +79,7 @@ const Settings = () => {
             className="py-5" 
             onClick={() => console.log('Sincronizando...')}
             >
-            Sync Data to Nebula Cloud
+            Sincronizar Cloud Nebular
         </Button>
         <Button 
             variant="danger" 
@@ -94,7 +87,7 @@ const Settings = () => {
             className="py-5"
             onClick={logout}
             >
-            Logout Session
+            Cerrar Sesión
         </Button>
         </nav>
       </section>

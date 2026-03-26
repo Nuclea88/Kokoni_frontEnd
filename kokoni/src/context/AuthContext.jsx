@@ -9,6 +9,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const handleSessionExpired = () => {
+      logout();
+      window.dispatchEvent(new CustomEvent('globalAlert', {
+        detail: { title: "Sesión Expirada", message: "Tu sesión ha expirado. Por favor, vuelve a entrar." }
+      }));
+    };
+    window.addEventListener('sessionExpired', handleSessionExpired);
+    return () => window.removeEventListener('sessionExpired', handleSessionExpired);
+  }, []);
+
+  useEffect(() => {
     const fetchUser = async () => {
       if (token) {
         try {

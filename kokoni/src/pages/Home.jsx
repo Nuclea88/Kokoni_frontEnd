@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import  Tag  from '../components/atoms/Tag';
 import MediaCard from '../components/molecules/MediaCard';
-import { Plus } from 'lucide-react';
+import { Plus, Trash } from 'lucide-react';
 import ListButton from '../components/atoms/ListButton';
 import trackerService from '../services/trackerService';
 import customListService from '../services/customListService';
+import { useModal } from '../context/ModalContext';
+import CreateListForm from '../components/molecules/CreateListForm';
+import CustomListHeader from '../components/molecules/CustomListHeader';
+import ConfirmActionContent from '../components/molecules/ConfirmActionContent';
 
 const Home = () => {
 
@@ -15,6 +19,7 @@ const Home = () => {
     const [customLists, setCustomLists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [listItems, setListItems] = useState([]);
+    const { openModal, closeModal, showAlert } = useModal();
 
     const statusMap = {
         'Pendiente': 'PLANNING',
@@ -75,6 +80,69 @@ const Home = () => {
     };
     if (loading) return <div className="text-primary p-10 text-center animate-pulse">Abriendo Kokoni...</div>;
 
+const handleCreateList = () => {
+    openModal({
+        title: "Crear Nueva Lista",
+        content: (
+           <CreateListForm 
+                onCancel={closeModal} 
+                saveText="Crear Lista"
+                onSave={async (name) => {
+                    if (!name.trim()) return;
+                    try {
+                        const newList = await customListService.createList(name);
+                        setCustomLists(prev => [...prev, newList]);
+                        setActiveFilter(newList.name);
+                        closeModal();
+                        showAlert("Lista Creada", `La lista "${name}" está lista para usarse.`);
+                    } catch (e) {
+                        showAlert("Error", "No se pudo crear la lista.");
+                    }
+                }}
+            />
+        )
+    });
+};
+
+
+
+
+
+
+const handleDeleteList = (listId, listName) => {
+    openModal({
+        title: "Atención",
+        content: (
+            <ConfirmActionContent
+                title={`¿Estás seguro de que quieres borrar la lista ${listName}?`}
+                description="Tus mangas no se eliminarán de tu biblioteca general, solo perderán esta etiqueta."
+                confirmText="Sí, borrarla"
+                cancelText="Mantenla"
+                onCancel={closeModal}
+                onConfirm={async () => {
+                    try {
+                        await customListService.deleteList(listId);
+                        setCustomLists(prev => prev.filter(l => l.id !== listId));
+                        setActiveFilter('Pendiente');
+                        closeModal();
+                        showAlert("Lista Eliminada", `Has borrado ${listName} con éxito.`);
+                    } catch (e) {
+                        showAlert("Error", "No se pudo eliminar la lista.");
+                    }
+                }}
+            />
+        )
+    });
+};
+
+
+
+
+
+
+
+
+
   return (
     <main className="flex flex-col space-y-8 animate-fade-in">
       {trackers.filter(t => t.userStatus === 'IN_PROGRESS').length > 0 && (
@@ -105,8 +173,40 @@ const Home = () => {
       <section className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
         {['Leyendo', 'Leído', 'Pospuesto', 'Pendiente', ...customLists.map(l => l.name)].map(f => (
                     <Tag key={f} active={activeFilter === f} onClick={() => setActiveFilter(f)}>{f}</Tag>
-                ))}
+                    ))}
+                    <button 
+                        onClick={handleCreateList} 
+                        className="text-primary text-sm font-bold whitespace-nowrap ml-2 cursor-pointer hover:underline"
+                    >
+                        + Nueva Lista
+                    </button>
             </section>
+
+
+
+
+
+{(() => {
+    const currentCustomList = customLists.find(l => l.name === activeFilter);
+    if (!currentCustomList) return null; 
+    return (
+        <CustomListHeader 
+            listName={currentCustomList.name} 
+            onDeleteClick={() => handleDeleteList(currentCustomList.id, currentCustomList.name)} 
+        />
+    );
+})()}
+
+
+
+
+
+
+
+
+
+
+
 
       <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
          {filteredDisplay().map((manga) => (

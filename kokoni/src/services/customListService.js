@@ -18,6 +18,10 @@ const customListService = {
     });
     return response.data;
   },
+
+  deleteList: async (listId) => {
+    await api.delete(`/api/lists/${listId}`);
+  },
   
   addCustomMediaToList: async (listId, customMediaId) => {
     await api.post(`/api/lists/${listId}/items/${customMediaId}`);

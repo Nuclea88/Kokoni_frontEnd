@@ -13,6 +13,8 @@ import customMediaService from '../services/customMediaService';
 import { useModal } from '../context/ModalContext';
 import ListOption from '../components/molecules/ListOption';
 import customListService from '../services/customListService';
+import CreateListForm from '../components/molecules/CreateListForm';
+
 
 export const MangaDetails = () => {
 
@@ -130,6 +132,13 @@ const { id } = useParams();
                 onClick={() => confirmSave(list.id)} 
               />
            ))}
+           <Button 
+              variant="secondary" 
+              className="w-full mt-2 text-primary border-primary/20 hover:bg-primary/10" 
+              onClick={handleOpenCreateList}
+            >
+              + Crear Nueva Lista
+            </Button>
            {manga.isAddedInTracker && (
              <footer className="pt-4 mt-2 border-t border-white/5">
                 <Button 
@@ -146,6 +155,27 @@ const { id } = useParams();
     });
   };
 
+  const handleOpenCreateList = () => {
+  openModal({
+    title: "Crear Nueva Lista",
+    content: (
+      <CreateListForm 
+        onCancel={handleBookmarkClick} 
+        saveText="Crear y Guardar"
+        onSave={async (name) => {
+          if (!name.trim()) return;
+          try {
+            const newList = await customListService.createList(name);
+            setLists(prev => [...prev, newList]);
+            await confirmSave(newList.id);
+          } catch (e) {
+            showAlert("Error", "No se ha podido crear la lista.");
+          }
+        }}
+      />
+    )
+  });
+};
 
 const confirmSave = async (listId) => {
     try {

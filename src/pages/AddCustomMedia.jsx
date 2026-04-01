@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import customListService from '../services/customListService';
 import { useModal } from '../context/ModalContext';
 import trackerService from '../services/trackerService';
+import defaultUser from '../assets/defaultUser.png';
 
 const AddCustomMedia = () => {
 
@@ -54,7 +55,7 @@ const AddCustomMedia = () => {
     setLoading(true);
     try {
             const newMedia = await customMediaService.create({
-        ...formData,
+        ...formData, imageUrl: formData.imageUrl || defaultUser,
         customTotalChapters: formData.customTotalChapters ? parseInt(formData.customTotalChapters) : null
       });
       await trackerService.add(newMedia.id);
@@ -85,16 +86,16 @@ const AddCustomMedia = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <fieldset className="border-0">
             <label className="text-[10px] font-black tracking-[0.2em] text-textMuted uppercase mb-2">Título *</label>
-            <Input name="title" placeholder="Ej. Jinx" value={formData.title} onChange={handleChange} required />
+            <Input name="title" placeholder="Ej. Fullmetal Alchemist" value={formData.title} onChange={handleChange} required />
         </fieldset>
         <fieldset className="grid grid-cols-2 gap-4 border-0">
             <div>
                 <label className="text-[10px] font-black tracking-[0.2em] text-textMuted uppercase mb-2">Autor</label>
-                <Input name="customAuthor" placeholder="Ej. Mingwa" value={formData.customAuthor} onChange={handleChange} />
+                <Input name="customAuthor" placeholder="Ej. Hiromu Arakama" value={formData.customAuthor} onChange={handleChange} />
             </div>
             <div>
                 <label className="text-[10px] font-black tracking-[0.2em] text-textMuted uppercase mb-2">Capítulos</label>
-                <Input type="number" name="customTotalChapters" placeholder="Ej. 50" value={formData.customTotalChapters} onChange={handleChange} />
+                <Input type="number" name="customTotalChapters" placeholder="Ej. 116" value={formData.customTotalChapters} onChange={handleChange} />
             </div>
         </fieldset>
         <fieldset >

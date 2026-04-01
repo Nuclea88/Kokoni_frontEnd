@@ -14,7 +14,9 @@ import { useModal } from '../context/ModalContext';
 import ListOption from '../components/molecules/ListOption';
 import customListService from '../services/customListService';
 import CreateListForm from '../components/molecules/CreateListForm';
-
+import ConfirmActionContent from '../components/molecules/ConfirmActionContent';
+import { Edit2 } from 'lucide-react';
+import Input from '../components/atoms/Input';
 
 export const MangaDetails = () => {
 
@@ -25,10 +27,30 @@ const { id } = useParams();
   const { showAlert, openModal, closeModal } = useModal();
   const [lists, setLists] = useState([]);
   const fetchedId = useRef(null);
+  const [currentListId, setCurrentListId] = useState(null);
+  const [isReversed, setIsReversed] = useState(false);
+  const isOfficialManga = isNaN(id);
 
   useEffect(() => {
-        customListService.getMyLists().then(setLists).catch(console.error);
-    }, []);
+        const fetchListsAndLocation = async () => {
+        try {
+            const myLists = await customListService.getMyLists();
+            setLists(myLists);
+            
+            for (const list of myLists) {
+                const details = await customListService.getListDetails(list.id);
+              
+                if (details.items.some(item => String(item.externalId) === String(id))) {
+                    setCurrentListId(list.id);
+                    break;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    fetchListsAndLocation();
+}, [id]);
 
   useEffect(() => {
     if (fetchedId.current === id) return;
@@ -69,8 +91,8 @@ const { id } = useParams();
   if (!manga) return <div className="min-h-screen bg-background flex items-center justify-center text-white">Manga no encontrado</div>;
 
   const chapters = Array.from(
-    { length: Math.min(manga.totalChapters) }, 
-    (_, i) => manga.totalChapters - i
+    { length: manga.totalChapters }, 
+    (_, i) => isReversed ? i + 1 : manga.totalChapters - i
   );
 
   const handleChapterClick = async (chapterNum, isAlreadyRead) => {
@@ -99,52 +121,142 @@ const { id } = useParams();
           readChapters: [...(prev.readChapters || []), newProgress]
         }));
       }
-       if (!isAlreadyRead && manga.isAddedInTracker) {
-         trackerService.updateStatus(manga.trackerId, 'IN_PROGRESS').catch(e => console.error(e));
-       }
+       if (manga.isAddedInTracker) {
+         const totalLeidos = isAlreadyRead ? (manga.readChapters?.length || 1) - 1 : (manga.readChapters?.length || 0) + 1;
+         let nuevoEstado = 'IN_PROGRESS';
+         if (totalLeidos === 0) {
+             nuevoEstado = 'PLANNING';
+         } 
+         else if (totalLeidos >= manga.totalChapters && manga.totalChapters > 0) {
+             nuevoEstado = 'COMPLETED';
+         }
+         if (manga.userStatus !== nuevoEstado) {
+             trackerService.updateStatus(manga.trackerId, nuevoEstado).catch(e => console.error(e));
+             setManga(prev => ({ ...prev, userStatus: nuevoEstado }));
+       } 
+      }
     } catch (error) {
       console.error("Error al gestionar el capítulo", error);
       showAlert("Error al gestionar el capítulo", error.message || "Hubo un problema con el capítulo.");
     }
   };
 
- const handleBookmarkClick = async () => {
+const handleBookmarkClick = async () => {
     openModal({
       title: manga.isAddedInTracker ? "Gestionar en mi biblioteca" : "Elije dónde guardarlo",
       content: (
         <section className="space-y-3">
+
+<header className="flex items-center space-x-2 py-2">
+              <hr className="h-[1px] flex-1 bg-white/5"></hr>
+              <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Estado de lectura</p>
+              <hr className="h-[1px] flex-1 bg-white/5"></hr>
+           </header>
+           
+           {manga.isAddedInTracker ? (
+             <nav className="grid grid-cols-4 gap-2 mb-2">
+                 {[
+                   { value: 'PLANNING', label: 'Pendiente' },
+                   { value: 'IN_PROGRESS', label: 'Leyendo' },
+                   { value: 'COMPLETED', label: 'Leído' },
+                   { value: 'DROPPED', label: 'Pospuesto' }
+                 ].map(status => {
+                     const isCurrent = manga.userStatus === status.value; 
+                     
+                     return (
+                         <Button 
+                             key={status.value}
+                             variant={isCurrent ? "primary" : "secondary"}
+                             className={`text-[9px] py-1.5 px-0.5 whitespace-nowrap transition-all ${isCurrent ? 'opacity-100 font-bold shadow-lg' : 'opacity-50 hover:opacity-100 border-white/5'}`}
+                             onClick={async () => {
+                                 if (isCurrent) return;
+                                 try {
+                                     await trackerService.updateStatus(manga.trackerId, status.value);
+                                     
+                                     // Reflejarlo visualmente sin recargar
+                                     setManga(prev => ({ ...prev, userStatus: status.value }));
+                                     closeModal();
+                                     showAlert("Estantería", `Has movido este manga a ${status.label}.`);
+                                 } catch (e) {
+                                     showAlert("Error", "No se pudo cambiar de estante.");
+                                 }
+                             }}
+                         >
+                             {status.label}
+                         </Button>
+                     );
+                 })}
+             </nav>
+           ) : (
+             <p className="text-[10px] text-center text-textMuted/50 mb-2 italic">Añade tu manga a una lista para organizar su lectura.</p>
+           )}
+
            <ListOption 
               type="library" 
               title="Biblioteca General" 
-              subtitle="Sin lista específica" 
+              subtitle={(currentListId === null && manga.isAddedInTracker) ? "◆ UBICACIÓN ACTUAL" : "Sin lista específica"}
+              isActive={currentListId === null && manga.isAddedInTracker}
               onClick={() => confirmSave(null)} 
            />
+           
            <header className="flex items-center space-x-2 py-2">
               <hr className="h-[1px] flex-1 bg-white/5"></hr>
               <p className="text-[10px] font-black text-white/20 uppercase tracking-widest"> Listas personalizadas</p>
               <hr className="h-[1px] flex-1 bg-white/5"></hr>
            </header>
-           {lists.map(list => (
-              <ListOption 
-                key={list.id} 
-                title={list.name} 
-                subtitle={`${list.isPublic ? 'Pública' : 'Privada'} • ${list.itemCount} items`}
-                onClick={() => confirmSave(list.id)} 
-              />
-           ))}
+           
+           {lists.map(list => {
+              const isCurrent = currentListId === list.id;
+              return (
+                  <ListOption 
+                    key={list.id} 
+                    title={list.name} 
+                    subtitle={isCurrent ? "◆ UBICACIÓN ACTUAL" : `${list.isPublic ? 'Pública' : 'Privada'} • ${list.itemCount} items`}
+                    isActive={isCurrent}
+                    onClick={() => confirmSave(list.id)} 
+                  />
+              );
+           })}
+           
            <Button 
-              variant="secondary" 
-              className="w-full mt-2 text-primary border-primary/20 hover:bg-primary/10" 
-              onClick={handleOpenCreateList}
+               variant="secondary" 
+               className="w-full mt-2 text-primary border-primary/20 hover:bg-primary/10" 
+               onClick={handleOpenCreateList}
             >
-              + Crear Nueva Lista
+               + Crear Nueva Lista
             </Button>
            {manga.isAddedInTracker && (
              <footer className="pt-4 mt-2 border-t border-white/5">
+              
                 <Button 
                    variant="secondary" 
-                   className="w-full text-red-400 border-red-400/20 hover:bg-red-400/10"
-                   onClick={handleTotalDelete}
+                   className="w-full text-red-500 bg-red-500/10 border-red-500/20 hover:bg-red-500/20 font-bold"
+                   onClick={() => {
+                        openModal({
+                            title: "Cuidado",
+                            content: (
+                                <ConfirmActionContent
+                                    title="¿Borrar este manga?"
+                                    description="Perderás tu progreso actual y desaparecerá de todas tus listas. No se puede deshacer."
+                                    confirmText="Sí, borrarlo"
+                                    cancelText="Cancelar"
+                                    onCancel={handleBookmarkClick} 
+                                    onConfirm={async () => {
+                                        try {
+                                            await trackerService.remove(manga.trackerId);
+                                            await customListService.removeFromAllLists(id);
+                                            setManga(prev => ({ ...prev, isAddedInTracker: false, trackerId: null, readChapters: [] }));
+                                            setCurrentListId(null);
+                                            closeModal();
+                                            showAlert("Eliminado", "Se ha borrado de tu biblioteca.");
+                                        } catch(e) {
+                                            showAlert("Error", "No se pudo eliminar de la biblioteca.");
+                                        }
+                                    }}
+                                />
+                            )
+                        });
+                   }}
                 >
                   Eliminar de la biblioteca (borra progreso)
                 </Button>
@@ -153,7 +265,7 @@ const { id } = useParams();
         </section>
       )
     });
-  };
+};
 
   const handleOpenCreateList = () => {
   openModal({
@@ -178,6 +290,10 @@ const { id } = useParams();
 };
 
 const confirmSave = async (listId) => {
+  if (manga.isAddedInTracker && currentListId === (listId || null)) {
+        closeModal();
+        return; 
+    }
     try {
       let currentTrackerId = manga.trackerId;
 
@@ -190,7 +306,8 @@ const confirmSave = async (listId) => {
         await customListService.addCustomMediaToList(listId, id);
       }
       
-      setManga(prev => ({ ...prev, isAddedInTracker: true, trackerId: currentTrackerId }));
+      setManga(prev => ({ ...prev, isAddedInTracker: true, trackerId: currentTrackerId, userStatus: 'PLANNING' }));
+      setCurrentListId(listId || null);
       closeModal();
       showAlert("Actualizado", listId ? "Movido a tu lista personalizada." : "Movido a la biblioteca general.");
     } catch (e) {
@@ -198,20 +315,7 @@ const confirmSave = async (listId) => {
       showAlert("Error", "No se pudo actualizar la ubicación.");
     }
   };
-    const handleTotalDelete = async () => {
-    try {
-      await trackerService.remove(manga.trackerId);
-      await customListService.removeFromAllLists(id);
-      
-      setManga(prev => ({ ...prev, isAddedInTracker: false, trackerId: null, readChapters: [] }));
-      closeModal();
-      showAlert("Eliminado", "Se ha borrado el progreso y quitado de tus listas.");
-    } catch (e) {
-      console.error(e);
-      showAlert("Error", "No se pudo eliminar el manga.");
-    }
-  };
-
+    
   const lastRead = manga.readChapters?.length > 0 
     ? Math.max(...manga.readChapters.map(c => c.progressUnit)) 
     : 0;
@@ -219,14 +323,116 @@ const confirmSave = async (listId) => {
   const nextChapter = lastRead < manga.totalChapters ? lastRead + 1 : manga.totalChapters;
   const isAllRead = lastRead === manga.totalChapters && manga.totalChapters > 0;
 
+const handleOpenCustomizeModal = () => {
+    let customChapters = manga.totalChapters || '';
+    let customTitle = manga.title || '';
+    openModal({
+        title: isOfficialManga ? "Personalizar Ficha" : "Editar Ficha",
+        content: (
+            <div className="space-y-4 pt-2">
+                <p className="text-xs text-textMuted px-2 text-center">
+                    {isOfficialManga 
+                        ? "¿MangaDex se equivocó? Créate una versión privada con los datos reales."
+                        : "Actualiza los datos de tu ficha (ej: suma capítulos nuevos)."}
+                </p>
+                <fieldset className="border-0">
+                    <label className="text-[10px] font-black tracking-[0.2em] text-textMuted uppercase mb-2">
+                        Título
+                    </label>
+                    <Input 
+                        placeholder="Título" 
+                        defaultValue={customTitle} 
+                        onChange={e => customTitle = e.target.value} o
+                    />
+                </fieldset>
+                <fieldset className="border-0">
+                    <label className="text-[10px] font-black tracking-[0.2em] text-textMuted uppercase mb-2">
+                        Total de Capítulos Real
+                    </label>
+                    <Input 
+                        type="number" 
+                        placeholder="Ej: 50" 
+                        defaultValue={customChapters} 
+                        onChange={e => customChapters = e.target.value} 
+                    />
+                </fieldset>
+                
+                <div className="flex space-x-3 pt-4">
+                    <Button onClick={closeModal} variant="secondary" className="w-[50%] py-2">
+                        Cancelar
+                    </Button>
+
+
+
+                    <Button 
+                        onClick={async () => {
+                            if (!customChapters || customChapters <= 0) return;
+                            try {
+                                const parsedChapters = parseInt(customChapters);
+                                const totalLeidos = manga.readChapters?.length || 0;
+                                let estadoCalculado = manga.userStatus;
+                                
+                                if (estadoCalculado === 'COMPLETED' && totalLeidos < parsedChapters) {
+                                    estadoCalculado = 'IN_PROGRESS';
+                                } 
+                                else if ((estadoCalculado === 'IN_PROGRESS' || estadoCalculado === 'PLANNING') && totalLeidos > 0 && totalLeidos >= parsedChapters) {
+                                    estadoCalculado = 'COMPLETED';
+                                }
+                                if (isOfficialManga) {
+                                    const newCustom = await customMediaService.create({
+                                        title: manga.title, 
+                                        baseMangaId: manga.id,    
+                                        customTotalChapters: parsedChapters
+                                    });
+                                    const resTracker = await trackerService.add(newCustom.id);
+                                    if (manga.userStatus !== estadoCalculado) {
+                                        await trackerService.updateStatus(resTracker.trackerId || manga.trackerId, estadoCalculado);
+                                    }
+                                    
+                                    closeModal();
+                                    showAlert("Ficha Creada", "Cargando tu versión...");
+                                    window.location.href = `/dashboard/manga/${newCustom.id}`;
+                                } else {
+                                    await customMediaService.update(id, {
+                                        title: customTitle,
+                                        customTotalChapters: parsedChapters
+                                    });
+                                    if (manga.userStatus !== estadoCalculado) {
+                                        await trackerService.updateStatus(manga.trackerId, estadoCalculado);
+                                    }
+                                    setManga(prev => ({ 
+                                      ...prev, 
+                                      title: customTitle, 
+                                      totalChapters: parsedChapters,
+                                      userStatus: estadoCalculado
+                                    }));
+                                    
+                                    closeModal();
+                                    showAlert("Actualizado", "Ficha e historial reajustados automáticamente.");
+                                }
+                            } catch (e) {
+                                showAlert("Error", "No se pudo actualizar el sistema.");
+                            }
+                        }} 
+                        className="w-[50%] py-2 bg-primary/20 text-primary hover:bg-primary/30 font-bold"
+                    >
+                        {isOfficialManga ? "Crear versión" : "Guardar cambios"}
+                    </Button>
+                </div>
+            </div>
+        )
+    });
+};
+
   return (
     <main className="flex flex-col bg-background min-h-screen pb-10 animate-fade-in-up">
       
       <DetailHeader 
         cover={manga.imageUrl} 
         title={manga.title} 
-        author={manga.author} 
-        badge="NOVEDAD" 
+        author={manga.author}
+        badge={!isNaN(id)?"LISTA PRIVADA": null}
+         
       />
       <article className="px-6 flex flex-col space-y-6 mt-6">
       
@@ -265,10 +471,25 @@ const confirmSave = async (listId) => {
         <section className="pt-2">
           <header className="flex justify-between items-center mb-6">
             <hgroup className="flex items-baseline space-x-3m-0">
-              <h3 className="text-lg font-bold text-white tracking-tight">Capítulos</h3>
+              <h3 className="text-lg font-bold text-white tracking-tight m-3">Capítulos </h3>
               <span className="text-[10px] text-textMuted font-bold uppercase tracking-widest">{manga.totalChapters} Total</span>
             </hgroup>
-            <ArrowDownUp className="w-5 h-5 text-textMuted cursor-pointer hover:text-white transition-colors" />
+
+            {manga.isAddedInTracker &&(
+            <button 
+                onClick={() => handleOpenCustomizeModal()} 
+                className="flex items-center text-[10px] font-black tracking-widest text-primary/80 hover:text-primary uppercase mt-4 mb-2 bg-primary/10 px-3 py-1.5 rounded-full transition-all border border-primary/20"
+            >
+                <Edit2 className="w-3 h-3 mr-2" />
+                {isOfficialManga ? "Personalizar Ficha" : "Editar Ficha"}
+            </button>
+            )}
+            <button 
+                onClick={() => setIsReversed(!isReversed)}
+                className={`p-2 rounded-full transition-all ${isReversed ? 'bg-primary/20 text-primary' : 'bg-white/5 text-textMuted hover:bg-white/10 hover:text-white'}`}
+            >
+                <ArrowDownUp className="w-4 h-4" />
+            </button>
           </header>
           <nav className="flex flex-wrap gap-3 justify-start">
             {chapters.map((ch) => {

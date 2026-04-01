@@ -8,7 +8,6 @@ import MangaListItem from '../components/molecules/MangaListItem';
 import ListButton from '../components/atoms/ListButton';
 import mangaService from '../services/mangaService';
 import trackerService from '../services/trackerService';
-import Button from '../components/atoms/Button';
 import logoLila from '../assets/kokoni_lila.png';
 
 const Explore = () => {

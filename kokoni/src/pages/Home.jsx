@@ -10,6 +10,7 @@ import { useModal } from '../context/ModalContext';
 import CreateListForm from '../components/molecules/CreateListForm';
 import CustomListHeader from '../components/molecules/CustomListHeader';
 import ConfirmActionContent from '../components/molecules/ConfirmActionContent';
+import ProgressCard from '../components/molecules/ProgressCard';
 
 const Home = () => {
 
@@ -68,14 +69,16 @@ const Home = () => {
                     id: t.externalId,
                     title: t.mangaTitle,
                     image: t.mangaImageUrl,
-                    chapter: `Cap. ${t.progressUnit || 0} / ${t.totalChapters || '??'}`
+                    chapter: `Cap. ${t.progressUnit || 0} / ${t.totalChapters || '??'}`,
+                    isCustom: !isNaN(t.externalId)
                 }));
         }
         return listItems.map(item => ({
             id: item.externalId,
             title: item.title,
             image: item.imageUrl,
-            chapter: "En lista"
+            chapter: "En lista",
+            isCustom: !isNaN(t.externalId)
         }));
     };
     if (loading) return <div className="text-primary p-10 text-center animate-pulse">Abriendo Kokoni...</div>;
@@ -104,11 +107,6 @@ const handleCreateList = () => {
     });
 };
 
-
-
-
-
-
 const handleDeleteList = (listId, listName) => {
     openModal({
         title: "Atención",
@@ -135,14 +133,6 @@ const handleDeleteList = (listId, listName) => {
     });
 };
 
-
-
-
-
-
-
-
-
   return (
     <main className="flex flex-col space-y-8 animate-fade-in">
       {trackers.filter(t => t.userStatus === 'IN_PROGRESS').length > 0 && (
@@ -153,20 +143,16 @@ const handleDeleteList = (listId, listName) => {
         </header>
         <nav className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
          {trackers.filter(t => t.userStatus === 'IN_PROGRESS').map((manga) => (
-                            <article key={manga.trackerId} 
-                                 onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}
-             className="min-w-[280px] bg-surface/40 border border-white/5 leaf-shape p-3 flex space-x-4 items-center cursor-pointer hover:bg-surface/60 transition-all">
-                <img src={manga.mangaImageUrl} className="w-16 h-20 object-cover rounded-lg shadow-lg" alt={manga.mangaTitle} onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}/>
-                <section className="flex flex-col flex-1">
-                  <h4 className="text-sm font-bold text-white uppercase">{manga.mangaTitle}</h4>
-                  <p className="text-[10px] text-textMuted mb-2"> Capítulo {manga.progressUnit} • {manga.totalChapters}</p>
-                  <figure className="w-full bg-background/50 h-1 rounded-full overflow-hidden mt-auto">
-                    <div className="bg-kokoni-gradient h-full rounded-full shadow-[0_0_10px_rgba(0,229,255,0.5)]"
-                         style={{ width: `${(manga.progressUnit / manga.totalChapters || 1) * 100}%` }}></div>
-                  </figure>
-                </section>
-              </article>
-            ))}
+             <ProgressCard 
+                 key={manga.trackerId}
+                 onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}
+                 title={manga.mangaTitle}
+                 image={manga.mangaImageUrl}
+                 currentChapter={manga.progressUnit}
+                 totalChapters={manga.totalChapters}
+                 isCustom={!isNaN(manga.externalId)}
+             />
+         ))}
         </nav>
       </section>
       )}
@@ -182,10 +168,6 @@ const handleDeleteList = (listId, listName) => {
                     </button>
             </section>
 
-
-
-
-
 {(() => {
     const currentCustomList = customLists.find(l => l.name === activeFilter);
     if (!currentCustomList) return null; 
@@ -197,17 +179,6 @@ const handleDeleteList = (listId, listName) => {
     );
 })()}
 
-
-
-
-
-
-
-
-
-
-
-
       <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
          {filteredDisplay().map((manga) => (
                     <MediaCard 
@@ -215,6 +186,7 @@ const handleDeleteList = (listId, listName) => {
                         title={manga.title} 
                         cover={manga.image} 
                         subtitle={manga.chapter}
+                        badge={manga.isCustom ? "PERSONAL" : null}
                         onClick={() => navigate(`/dashboard/manga/${manga.id}`)}
                     />
                 ))}

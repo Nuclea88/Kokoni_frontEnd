@@ -14,7 +14,7 @@ const MediaCard = ({ title, subtitle, cover, badge, onClick }) => {
         <i className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-60"></i>
     
         {badge && (
-          <mark className="absolute bottom-3 left-3 bg-secondary/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-black text-white uppercase tracking-wider bg-transparent">
+          <mark className="absolute bottom-3 left-3 bg-primary/50 backdrop-blur-md px-2.5 py-1 rounded leaf-shape text-[10px] font-black text-background uppercase tracking-wider">
             {badge}
           </mark>
         )}

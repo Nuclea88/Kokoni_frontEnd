@@ -5,12 +5,15 @@ import { AuthProvider } from './context/AuthContext';
 import  router  from './router/Index';
 import './index.css';
 import { ModalProvider } from './context/ModalContext';
+import ServerWakeUp from './components/organisms/ServerWakeUp'; 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <ModalProvider>
-        <RouterProvider router={router}/>
+        <ServerWakeUp> 
+          <RouterProvider router={router}/>
+        </ServerWakeUp>
       </ModalProvider>
     </AuthProvider>
   </StrictMode>

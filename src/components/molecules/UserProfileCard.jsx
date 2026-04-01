@@ -20,9 +20,9 @@ const UserProfileCard = ({ username, rank, avatar, level }) => {
           <p className="text-[10px] text-textMuted uppercase tracking-widest mt-0.5">{rank}</p>
         </hgroup>
       </header>
-      <button className="text-[10px] font-bold text-white border border-white/10 px-4 py-1.5 rounded-full hover:bg-white/5 transition-colors">
+      {/* <button className="text-[10px] font-bold text-white border border-white/10 px-4 py-1.5 rounded-full hover:bg-white/5 transition-colors">
         Gestionar
-      </button>
+      </button> */}
     </section>
   );
 };

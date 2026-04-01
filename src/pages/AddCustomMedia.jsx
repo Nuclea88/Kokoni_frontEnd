@@ -6,6 +6,7 @@ import Button from '../components/atoms/Button';
 import { ArrowLeft } from 'lucide-react';
 import customListService from '../services/customListService';
 import { useModal } from '../context/ModalContext';
+import trackerService from '../services/trackerService';
 
 const AddCustomMedia = () => {
 
@@ -56,6 +57,7 @@ const AddCustomMedia = () => {
         ...formData,
         customTotalChapters: formData.customTotalChapters ? parseInt(formData.customTotalChapters) : null
       });
+      await trackerService.add(newMedia.id);
       
       let targetListId = formData.listId;
       if (showNewListInput && newListName.trim() !== '') {

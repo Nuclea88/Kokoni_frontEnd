@@ -14,21 +14,21 @@ const Settings = () => {
 
   return (
     <main className="flex flex-col min-h-screen bg-background pb-32 animate-fade-in-up md:max-w-md md:mx-auto">
-      <section className="px-6 flex flex-col space-y-6 pt-2">
+      <div className="px-6 flex flex-col space-y-6 pt-2">
         <UserProfileCard 
           username={user?.username || 'Reaper'}
           rank={user?.rankName || 'NOVICE RANK'}
           level={user?.level || 1}
           avatar={user?.avatarUrl || "https://img.freepik.com/vector-premium/chica-anime-chill-lofi_698903-8153.jpg"}  
         />
-        <article className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4">
           <StatCard 
             title="TOTAL CAPÍTULOS LEÍDOS"
             value={user?.totalChaptersRead || 0}
             icon={BookOpen}
             borderColor="border-l-primary"
           />
-          <nav className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <StatCard 
               title="RACHA"
               value={user?.streakDays || 0}
@@ -45,13 +45,13 @@ const Settings = () => {
               progressColor="bg-secondary"
               borderColor="border-l-secondary"
             />
-          </nav>
-        </article>
+          </div>
+        </div>
         <fieldset className="border-0">
           <h3 className="text-[10px] uppercase font-bold tracking-[0.15em] text-textMuted mb-3 px-2">
             APARIENCIA E INTERFAZ
           </h3>
-          <nav className="flex flex-col rounded-[24px] border border-white/5 bg-surface/20 overflow-hidden">
+          <div className="flex flex-col rounded-[24px] border border-white/5 bg-surface/20 overflow-hidden">
             <SettingToggleRow 
               icon={Palette} 
               title="Tema Oscuro Obsidian" 
@@ -70,9 +70,9 @@ const Settings = () => {
               active={density} 
               onToggle={() => setDensity(!density)} 
             />
-          </nav>
+          </div>
         </fieldset>
-        <nav className="flex flex-col space-y-3 pt-2">
+        <div className="flex flex-col space-y-3 pt-2">
           <Button 
             variant="primary" 
             icon={Cloud} 
@@ -89,8 +89,8 @@ const Settings = () => {
             >
             Cerrar Sesión
         </Button>
-        </nav>
-      </section>
+        </div>
+      </div>
     </main>
   );
 };

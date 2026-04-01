@@ -6,6 +6,11 @@ const customMediaService = {
     return response.data; 
   },
 
+  update: async (id, data) => {
+    const response = await api.put(`/api/custom-media/${id}`, data);
+    return response.data;
+  },
+
   getById: async (id) => {
     const response = await api.get(`/api/custom-media/${id}`);
     const data = response.data;

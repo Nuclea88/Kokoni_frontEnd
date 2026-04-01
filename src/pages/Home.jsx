@@ -78,7 +78,7 @@ const Home = () => {
             title: item.title,
             image: item.imageUrl,
             chapter: "En lista",
-            isCustom: !isNaN(t.externalId)
+            isCustom: !isNaN(item.externalId)
         }));
     };
     if (loading) return <div className="text-primary p-10 text-center animate-pulse">Abriendo Kokoni...</div>;

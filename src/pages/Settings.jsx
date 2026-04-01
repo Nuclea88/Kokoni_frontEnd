@@ -5,6 +5,7 @@ import  StatCard  from '../components/molecules/StatCard';
 import  SettingToggleRow  from '../components/molecules/SettingToggleRow';
 import Button from '../components/atoms/Button';
 import { AuthContext } from '../context/AuthContext';
+import defaultUser from "../assets/defaultUser.png";
 
 const Settings = () => {
   const { user, logout } = useContext(AuthContext);
@@ -19,13 +20,13 @@ const Settings = () => {
           username={user?.username || 'Reaper'}
           rank={user?.rankName || 'NOVICE RANK'}
           level={user?.level || 1}
-          avatar={user?.avatarUrl || "https://img.freepik.com/vector-premium/chica-anime-chill-lofi_698903-8153.jpg"}  
+          avatar={user?.avatarUrl || defaultUser}  
         />
         <div className="flex flex-col space-y-4">
           <StatCard 
             title="TOTAL CAPÍTULOS LEÍDOS"
             value={user?.totalChaptersRead || 0}
-            icon={BookOpen}
+            // icon={BookOpen}
             borderColor="border-l-primary"
           />
           <div className="grid grid-cols-2 gap-4">
@@ -48,10 +49,10 @@ const Settings = () => {
           </div>
         </div>
         <fieldset className="border-0">
-          <h3 className="text-[10px] uppercase font-bold tracking-[0.15em] text-textMuted mb-3 px-2">
-            APARIENCIA E INTERFAZ
-          </h3>
-          <div className="flex flex-col rounded-[24px] border border-white/5 bg-surface/20 overflow-hidden">
+          {/* <h3 className="text-[10px] uppercase font-bold tracking-[0.15em] text-textMuted mb-3 px-2">
+            APARIENCIA E INTERFAZ (EN CONSTRUCCION)
+          </h3> */}
+          {/* <div className="flex flex-col rounded-[24px] border border-white/5 bg-surface/20 overflow-hidden">
             <SettingToggleRow 
               icon={Palette} 
               title="Tema Oscuro Obsidian" 
@@ -70,17 +71,17 @@ const Settings = () => {
               active={density} 
               onToggle={() => setDensity(!density)} 
             />
-          </div>
+          </div> */}
         </fieldset>
         <div className="flex flex-col space-y-3 pt-2">
-          <Button 
+          {/* <Button 
             variant="primary" 
             icon={Cloud} 
             className="py-5" 
             onClick={() => console.log('Sincronizando...')}
             >
             Sincronizar Cloud Nebular
-        </Button>
+        </Button> */}
         <Button 
             variant="danger" 
             icon={LogOut} 

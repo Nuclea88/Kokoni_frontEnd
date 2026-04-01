@@ -141,7 +141,7 @@ const handleDeleteList = (listId, listName) => {
             <h2 className="text-textMuted text-[10px] font-black tracking-[0.2em] uppercase">CONTINÚA LEYENDO</h2>
             <button type="button" className="text-primary text-xs font-bold cursor-pointer hover:underline bg-transparent border-0 leading-none">Ver todo</button>
         </header>
-        <nav className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
          {trackers.filter(t => t.userStatus === 'IN_PROGRESS').map((manga) => (
              <ProgressCard 
                  key={manga.trackerId}
@@ -153,10 +153,10 @@ const handleDeleteList = (listId, listName) => {
                  isCustom={!isNaN(manga.externalId)}
              />
          ))}
-        </nav>
+        </div>
       </section>
       )}
-      <section className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
         {['Leyendo', 'Leído', 'Pospuesto', 'Pendiente', ...customLists.map(l => l.name)].map(f => (
                     <Tag key={f} active={activeFilter === f} onClick={() => setActiveFilter(f)}>{f}</Tag>
                     ))}
@@ -166,7 +166,7 @@ const handleDeleteList = (listId, listName) => {
                     >
                         + Nueva Lista
                     </button>
-            </section>
+            </div>
 
 {(() => {
     const currentCustomList = customLists.find(l => l.name === activeFilter);
@@ -179,7 +179,7 @@ const handleDeleteList = (listId, listName) => {
     );
 })()}
 
-      <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
          {filteredDisplay().map((manga) => (
                     <MediaCard 
                         key={manga.id} 
@@ -190,7 +190,7 @@ const handleDeleteList = (listId, listName) => {
                         onClick={() => navigate(`/dashboard/manga/${manga.id}`)}
                     />
                 ))}
-            </section>
+            </div>
             <aside className="fixed bottom-24 right-6 z-50">
                 <ListButton icon={Plus} variant="solid" className="w-14 h-14 shadow-2xl" onClick={() => navigate('/dashboard/explorar')} />
             </aside>

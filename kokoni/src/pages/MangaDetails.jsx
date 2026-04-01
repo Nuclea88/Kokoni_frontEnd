@@ -1,4 +1,4 @@
-import { Play, Bookmark, ArrowDownUp, ListOrdered, CheckCircle } from 'lucide-react';
+import { Play, Bookmark, ArrowDownUp} from 'lucide-react';
 import  Button  from '../components/atoms/Button';
 import  StatItem  from '../components/atoms/StatItem';
 import  ChapterButton  from '../components/atoms/ChapterButton';
@@ -80,9 +80,9 @@ const { id } = useParams();
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-primary animate-pulse w-full text-center">Analizando datos de Kokoni...</p></div>;
     if (error) return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
-      <figure className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+      <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
         <p className="text-4xl">📡</p>
-      </figure>
+      </div>
       <h2 className="text-xl font-black text-white mb-2">Error de Conexión</h2>
       <p className="text-textMuted text-sm mb-8 max-w-xs">{error}</p>
       <Button variant="primary" onClick={() => window.location.reload()}>Reintentar conexión</Button>
@@ -147,14 +147,14 @@ const handleBookmarkClick = async () => {
       content: (
         <section className="space-y-3">
 
-<header className="flex items-center space-x-2 py-2">
+<div className="flex items-center space-x-2 py-2">
               <hr className="h-[1px] flex-1 bg-white/5"></hr>
               <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Estado de lectura</p>
               <hr className="h-[1px] flex-1 bg-white/5"></hr>
-           </header>
+           </div>
            
            {manga.isAddedInTracker ? (
-             <nav className="grid grid-cols-4 gap-2 mb-2">
+             <div className="grid grid-cols-4 gap-2 mb-2">
                  {[
                    { value: 'PLANNING', label: 'Pendiente' },
                    { value: 'IN_PROGRESS', label: 'Leyendo' },
@@ -172,9 +172,7 @@ const handleBookmarkClick = async () => {
                                  if (isCurrent) return;
                                  try {
                                      await trackerService.updateStatus(manga.trackerId, status.value);
-                                     
-                                     // Reflejarlo visualmente sin recargar
-                                     setManga(prev => ({ ...prev, userStatus: status.value }));
+                                    setManga(prev => ({ ...prev, userStatus: status.value }));
                                      closeModal();
                                      showAlert("Estantería", `Has movido este manga a ${status.label}.`);
                                  } catch (e) {
@@ -186,7 +184,7 @@ const handleBookmarkClick = async () => {
                          </Button>
                      );
                  })}
-             </nav>
+             </div>
            ) : (
              <p className="text-[10px] text-center text-textMuted/50 mb-2 italic">Añade tu manga a una lista para organizar su lectura.</p>
            )}
@@ -199,11 +197,11 @@ const handleBookmarkClick = async () => {
               onClick={() => confirmSave(null)} 
            />
            
-           <header className="flex items-center space-x-2 py-2">
+           <div className="flex items-center space-x-2 py-2">
               <hr className="h-[1px] flex-1 bg-white/5"></hr>
               <p className="text-[10px] font-black text-white/20 uppercase tracking-widest"> Listas personalizadas</p>
               <hr className="h-[1px] flex-1 bg-white/5"></hr>
-           </header>
+           </div>
            
            {lists.map(list => {
               const isCurrent = currentListId === list.id;
@@ -296,17 +294,25 @@ const confirmSave = async (listId) => {
     }
     try {
       let currentTrackerId = manga.trackerId;
+      let newInternalMangaId = null;
 
       if (!manga.isAddedInTracker) {
         const resp = await trackerService.add(id); 
         currentTrackerId = resp.trackerId;
+        newInternalMangaId = resp.mangaId;
       }
          await customListService.removeFromAllLists(id);
       if (listId) {
         await customListService.addCustomMediaToList(listId, id);
       }
       
-      setManga(prev => ({ ...prev, isAddedInTracker: true, trackerId: currentTrackerId, userStatus: 'PLANNING' }));
+      setManga(prev => ({ 
+          ...prev, 
+          isAddedInTracker: true, 
+          trackerId: currentTrackerId, 
+          userStatus: 'PLANNING',
+          ...(newInternalMangaId && { id: newInternalMangaId })
+      }));
       setCurrentListId(listId || null);
       closeModal();
       showAlert("Actualizado", listId ? "Movido a tu lista personalizada." : "Movido a la biblioteca general.");
@@ -380,13 +386,16 @@ const handleOpenCustomizeModal = () => {
                                 }
                                 if (isOfficialManga) {
                                     const newCustom = await customMediaService.create({
-                                        title: manga.title, 
+                                        title: customTitle || manga.title, 
                                         baseMangaId: manga.id,    
-                                        customTotalChapters: parsedChapters
+                                        customTotalChapters: parsedChapters,
+                                        imageUrl: manga.imageUrl,
+                                        description: manga.description,
+                                        customAuthor: manga.author,
+                                        status: estadoCalculado
                                     });
-                                    const resTracker = await trackerService.add(newCustom.id);
-                                    if (manga.userStatus !== estadoCalculado) {
-                                        await trackerService.updateStatus(resTracker.trackerId || manga.trackerId, estadoCalculado);
+                                    if (manga.trackerId && manga.userStatus !== estadoCalculado) {
+                                        await trackerService.updateStatus(manga.trackerId, estadoCalculado);
                                     }
                                     
                                     closeModal();
@@ -434,46 +443,46 @@ const handleOpenCustomizeModal = () => {
         badge={!isNaN(id)?"LISTA PRIVADA": null}
          
       />
-      <article className="px-6 flex flex-col space-y-6 mt-6">
+      <section className="px-6 flex flex-col space-y-6 mt-6">
       
-          <section className="flex justify-between items-center text-center">
+          <div className="flex justify-between items-center text-center">
             <StatItem label="Score" value={manga.averageScore?.toString()} valueColor="text-primary" hasGlow />
             <StatItem label="Status" value={manga.status} valueColor="text-secondary" />
             <StatItem label="Rank" value={manga.rankPosition ? `#${manga.rankPosition}` : '-'} />
             <StatItem label="Read" value={`${manga.readersCount || 0}`} />
-          </section>
-        </article>
-        <nav className="flex space-x-3 pt-2">
-          <figure className="flex-1">
+          </div>
+        </section>
+        <div className="flex space-x-3 pt-2">
+          <div className="flex-1">
              <Button  onClick={() => handleChapterClick(nextChapter, false)} 
                       variant="primary" disabled={!nextChapter || nextChapter <= 0} className="flex items-center justify-center py-[15px] px-0 rounded-tl-[16px] rounded-br-[16px] rounded-tr-[4px] rounded-bl-[4px]">
                 <Play className="w-4 h-4 mr-2 fill-white" />
                 {(!nextChapter || nextChapter <= 0) ? "Sin capítulos" : (isAllRead ? `Releer capítulo ${manga.totalChapters}` : `Leer capítulo ${nextChapter}`)}
              </Button>
-          </figure>
-          <figure className="w-16">
+          </div>
+          <div className="w-16">
              <Button onClick={handleBookmarkClick} variant={manga.isAddedInTracker ? "active" : "secondary"} className="flex items-center justify-center py-[15px] px-0 rounded-tl-[24px] rounded-br-[24px] rounded-tr-[6px] rounded-bl-[6px]">
               <Bookmark className={`w-5 h-5 stroke-[2.5px] ${manga.isAddedInTracker ? 'text-white fill-white' : 'text-primary'}`} />
             </Button>
-          </figure>
-        </nav>
+          </div>
+        </div>
         <section className="pt-2">
           <h3 className="text-[11px] text-textMuted uppercase font-black tracking-[0.2em] mb-3">SINOPSIS</h3>
           <p className="text-xs text-white/70 leading-relaxed font-medium mb-4">{manga.description}</p>
           
-          <nav className="flex flex-wrap gap-2 pb-8 border-b border-white/5">
+          <div className="flex flex-wrap gap-2 pb-8 border-b border-white/5">
             {(manga.genres || []).map((g, index) => {
             const badgeColor = index % 2 === 0 ? "secondary" : "primary";
             return <GenreTag key={g} text={g} variant={badgeColor} />;
             })}
-          </nav>
+          </div>
         </section>
         <section className="pt-2">
           <header className="flex justify-between items-center mb-6">
-            <hgroup className="flex items-baseline space-x-3m-0">
+            <div className="flex items-baseline space-x-3m-0">
               <h3 className="text-lg font-bold text-white tracking-tight m-3">Capítulos </h3>
               <span className="text-[10px] text-textMuted font-bold uppercase tracking-widest">{manga.totalChapters} Total</span>
-            </hgroup>
+            </div>
 
             {manga.isAddedInTracker &&(
             <button 
@@ -491,7 +500,7 @@ const handleOpenCustomizeModal = () => {
                 <ArrowDownUp className="w-4 h-4" />
             </button>
           </header>
-          <nav className="flex flex-wrap gap-3 justify-start">
+          <div className="flex flex-wrap gap-3 justify-start">
             {chapters.map((ch) => {
             const progress = manga.readChapters?.find(p => p.progressUnit === ch);
             const isReaded = !!progress;
@@ -508,7 +517,7 @@ const handleOpenCustomizeModal = () => {
               />
             );
           })}
-          </nav>
+          </div>
         </section>
       </main>
   );

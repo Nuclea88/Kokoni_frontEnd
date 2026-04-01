@@ -91,13 +91,13 @@ const Explore = () => {
       </header>
       <section className="px-6 flex flex-col space-y-6 pt-4">
         <div className="flex flex-col space-y-4 border-0">
-          <nav className="flex space-x-3 overflow-x-auto scrollbar-hide [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex space-x-3 overflow-x-auto scrollbar-hide [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {categories.map(cat => (
               <Tag key={cat} active={activeCategory === cat} onClick={() => setActiveCategory(cat)}>
                 {cat}
               </Tag>
             ))}
-          </nav>
+          </div>
           <button 
             onClick={() => navigate('/dashboard/Lista Personalizada')}
             className="flex items-center space-x-2 text-primary font-bold text-xs hover:opacity-80 transition-opacity w-fit px-2 py-1"
@@ -114,14 +114,14 @@ const Explore = () => {
             </h2>
           </header>
           {loading && page === 0 && (
-            <figure className="flex flex-col items-center justify-center py-20 animate-pulse">
+            <div className="flex flex-col items-center justify-center py-20 animate-pulse">
               <img src={logoLila} alt="C" className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(186,104,200,0.5)] mb-4" />
               <p className="text-secondary font-black text-[9px] tracking-[0.3em] uppercase">Sincronizando...</p>
-            </figure>
+            </div>
           )}
           {mangas.length > 0 && (
-            <article className="m-0">
-              <nav className="md:hidden flex flex-col space-y-3">
+            <div className="m-0">
+              <div className="md:hidden flex flex-col space-y-3">
                 {mangas.map((manga) => (
                   <MangaListItem 
                     key={manga.externalId}
@@ -132,10 +132,10 @@ const Explore = () => {
                     onAddClick={(e) => handleToggleAdd(manga.externalId, e)}
                   />
                 ))}
-              </nav>
-              <nav className="hidden md:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+              </div>
+              <div className="hidden md:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
                 {mangas.map((manga) => (
-                  <figure key={manga.externalId} className="relative group cursor-pointer" onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}>
+                  <div key={manga.externalId} className="relative group cursor-pointer" onClick={() => navigate(`/dashboard/manga/${manga.externalId}`)}>
                     <MediaCard title={manga.title} subtitle={manga.author || "Autor..."} cover={manga.imageUrl} />
                     <ListButton 
                       icon={manga.isAddedToLibrary ? Check : Plus}
@@ -143,23 +143,23 @@ const Explore = () => {
                       onClick={(e) => { e.stopPropagation(); handleToggleAdd(manga.externalId, e); }}
                       className="absolute top-2 right-2 w-10 h-10 shadow-xl backdrop-blur-md bg-background/60 border border-white/10 hover:bg-background/80"
                     />
-                  </figure>
+                  </div>
                 ))}
-              </nav>
+              </div>
               {loading && page > 0 && (
-                 <figure className="w-full flex justify-center py-8">
+                 <div className="w-full flex justify-center py-8">
                     <i className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></i>
-                 </figure>
+                 </div>
               )}
-              {hasMore && <figure ref={lastMangaElementRef} className="h-10 w-full" />}
-            </article>
+              {hasMore && <div ref={lastMangaElementRef} className="h-10 w-full" />}
+            </div>
           )}
           {!loading && searchTerm && mangas.length === 0 && (
-            <figure className="py-20 text-center opacity-50">
+            <div className="py-20 text-center opacity-50">
               <Search className="w-10 h-10 text-white mx-auto mb-4" />
               <p className="text-white font-bold">Sin resultados en la base de datos</p>
               <p className="text-textMuted text-xs">Prueba con otro título o añádela arriba</p>
-            </figure>
+            </div>
           )}
         </section>
       </section>

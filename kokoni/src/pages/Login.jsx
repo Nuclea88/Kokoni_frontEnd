@@ -30,10 +30,16 @@ export default function Login() {;
       await login(form.usernameOrEmail, form.password);
       navigate('/dashboard'); 
     } catch (err) {
-      setError('Usuario o contraseña incorrectos');
       console.error("Fallo de login:", err);
-    }
-  };
+      if (!err.response || err.message === 'Network Error'){
+        setError('Upss!! El servidor está inactivo en este momento. Inténtalo más tarde ¡o dale un minutillo que se despierte!')
+      }else if (err.response && (err.response.status === 401 || err.response.status === 403)){
+        setError('Usuario o contraseña incorrectos.');
+      }else{
+        setError('Ha ocurrido un error inesperado al iniciar sesión.');
+      }
+    };
+  }
   
   return (
     <main className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">

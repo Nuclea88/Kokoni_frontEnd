@@ -13,6 +13,7 @@ const MangaListItem = ({ title, author, cover, isAdded, onClick, onAddClick, gen
         <img 
           src={cover} 
           alt={title} 
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 leaf-shape " 
         />
         <i className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-60"></i>

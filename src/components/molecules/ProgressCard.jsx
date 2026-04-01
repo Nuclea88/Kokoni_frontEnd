@@ -18,7 +18,8 @@ const ProgressCard = ({
       <img 
         src={image} 
         className="w-16 h-20 object-cover rounded-lg shadow-lg" 
-        alt={title} 
+        alt={title}
+        referrerPolicy="no-referrer"
       />
       <section className="flex flex-col flex-1 truncate">
         <h4 className="text-sm font-bold text-white uppercase flex items-center truncate">

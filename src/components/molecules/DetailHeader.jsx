@@ -2,7 +2,7 @@ const DetailHeader = ({ cover, title, author, badge }) => {
 
   return (
     <header className="relative w-full h-[400px]">
-      <img src={cover} alt={title} className="w-full h-full object-cover" />
+      <img src={cover} alt={title} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
       <i className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none"></i>
       
       <hgroup className="absolute bottom-0 left-0 w-full px-6 pb-2 text-center flex flex-col items-center">

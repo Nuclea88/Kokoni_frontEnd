@@ -9,6 +9,7 @@ const MediaCard = ({ title, subtitle, cover, badge, onClick }) => {
         <img 
           src={cover} 
           alt={title} 
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
         />
         <i className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-60"></i>

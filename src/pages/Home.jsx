@@ -73,13 +73,21 @@ const Home = () => {
                     isCustom: !isNaN(t.externalId)
                 }));
         }
-        return listItems.map(item => ({
-            id: item.externalId,
-            title: item.title,
-            image: item.imageUrl,
-            chapter: "En lista",
-            isCustom: !isNaN(item.externalId)
-        }));
+        return listItems.map(item => {
+
+            const tracker = trackers.find(t => t.externalId === item.externalId);
+    
+            return {
+                id: item.externalId,
+                title: item.title,
+                image: item.imageUrl,
+                chapter: tracker 
+                    ? `Cap. ${tracker.progressUnit || 0} / ${tracker.totalChapters || '??'}` 
+                    : "Sin leer",
+                isCustom: !isNaN(item.externalId)
+            };
+        });
+
     };
     if (loading) return <div className="text-primary p-10 text-center animate-pulse">Abriendo Kokoni...</div>;
 

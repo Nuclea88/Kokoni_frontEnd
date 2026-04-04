@@ -5,6 +5,7 @@ import  Input  from '../components/atoms/Input';
 import  Button  from '../components/atoms/Button';
 import { useNavigate } from 'react-router';
 import logoLila from '../assets/kokoni_lila.png';
+import TextButton from '../components/atoms/TextButton';
 
 export default function Register() {
 
@@ -80,9 +81,11 @@ export default function Register() {
           </Button>
         </form>
         <footer className="mt-6 flex items-center space-x-2 text-sm text-textMuted">
-          <p className="m-0">¿Ya tienes cuenta?</p>
-          <button type = "button" onClick={() => navigate('/login')} className="text-primary font-semibold cursor-pointer hover:underline  bg-transparent border-0">Inicia Sesión</button>
-        </footer>
+          <p className="m-1">¿Ya tienes cuenta?</p>
+          <TextButton onClick={() => navigate('/login')} className="text-sm font-semibold">
+              Inicia Sesión
+          </TextButton>
+          </footer>
       </section>
     </main>
   );

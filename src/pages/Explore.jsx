@@ -9,6 +9,7 @@ import ListButton from '../components/atoms/ListButton';
 import mangaService from '../services/mangaService';
 import trackerService from '../services/trackerService';
 import logoLila from '../assets/kokoni_lila.png';
+import TextButton from '../components/atoms/TextButton';
 
 const Explore = () => {
   const navigate = useNavigate();
@@ -98,13 +99,13 @@ const Explore = () => {
               </Tag>
             ))}
           </div>
-          <button 
-            onClick={() => navigate('/dashboard/Lista Personalizada')}
-            className="flex items-center space-x-2 text-primary font-bold text-xs hover:opacity-80 transition-opacity w-fit px-2 py-1"
+          <TextButton 
+              onClick={() => navigate('/dashboard/Lista Personalizada')}
+              className="text-xs space-x-2 px-2 py-1 hover:opacity-80"
           >
-            <PlusCircle className="w-4 h-4" />
-            <span>¿No encuentras lo que buscas? Añádela tú mismo</span>
-          </button>
+              <PlusCircle className="w-4 h-4" />
+              <span>¿No encuentras lo que buscas? Añádelo tú mismo</span>
+          </TextButton>
         </div>
         <section className="pt-2">
           <header className="flex items-center space-x-2 mb-6">

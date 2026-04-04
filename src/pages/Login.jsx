@@ -5,6 +5,7 @@ import  Input  from '../components/atoms/Input';
 import  Button  from '../components/atoms/Button';
 import { useNavigate } from 'react-router';
 import logoLila from '../assets/kokoni_lila.png';
+import TextButton from '../components/atoms/TextButton';
 
 export default function Login() {;
 
@@ -72,18 +73,20 @@ export default function Login() {;
             value={form.password}
             onChange={handleChange} required
           />
-          <footer className="flex justify-end w-full pb-2">
+          {/* <footer className="flex justify-end w-full pb-2">
             <button type = "button" className="text-xs text-primary cursor-pointer hover:underline bg-transparent border-0">¿Olvidaste tu contraseña?</button>
-          </footer>
+          </footer> */}
           <Button variant="primary" type="submit">
             Iniciar Sesión
           </Button>
           {error && <p className="text-red-500 text-xs text-center mb-4 font-bold">{error}</p>}
         </form>
         <footer className="mt-6 flex items-center space-x-2 text-sm text-textMuted">
-          <p className="m-0">¿No tienes cuenta?</p>
-          <button type = "button" onClick={() => navigate('/register')} className="text-primary font-semibold cursor-pointer hover:underline bg-transparent border-0">Regístrate</button>
-        </footer>
+          <p className="m-1">¿No tienes cuenta?  </p>
+          <TextButton onClick={() => navigate('/register')} className="text-sm font-semibold">
+              Regístrate
+          </TextButton>
+          </footer>
       </section>
     </main>
   );

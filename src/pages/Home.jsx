@@ -11,6 +11,7 @@ import CreateListForm from '../components/molecules/CreateListForm';
 import CustomListHeader from '../components/molecules/CustomListHeader';
 import ConfirmActionContent from '../components/molecules/ConfirmActionContent';
 import ProgressCard from '../components/molecules/ProgressCard';
+import TextButton from '../components/atoms/TextButton';
 
 const Home = () => {
 
@@ -62,6 +63,15 @@ const Home = () => {
 
     const filteredDisplay = () => {
         
+        if (activeFilter === 'Todo') {
+            return trackers.map(t => ({
+                id: t.externalId,
+                title: t.mangaTitle,
+                image: t.mangaImageUrl,
+                chapter: `Cap. ${t.progressUnit || 0} / ${t.totalChapters || '??'}`,
+                isCustom: !isNaN(t.externalId)
+            }));
+        }
         if (statusMap[activeFilter]) {
             return trackers
                 .filter(t => t.userStatus === statusMap[activeFilter])
@@ -147,8 +157,10 @@ const handleDeleteList = (listId, listName) => {
       <section>
         <header className="flex justify-between items-end mb-4 px-2">
             <h2 className="text-textMuted text-[10px] font-black tracking-[0.2em] uppercase">CONTINÚA LEYENDO</h2>
-            <button type="button" className="text-primary text-xs font-bold cursor-pointer hover:underline bg-transparent border-0 leading-none">Ver todo</button>
-        </header>
+            <TextButton onClick={() => setActiveFilter('Leyendo')} className="text-xs">
+                Ver todo
+            </TextButton>
+            </header>
         <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
          {trackers.filter(t => t.userStatus === 'IN_PROGRESS').map((manga) => (
              <ProgressCard 
@@ -165,7 +177,7 @@ const handleDeleteList = (listId, listName) => {
       </section>
       )}
       <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
-        {['Leyendo', 'Leído', 'Pospuesto', 'Pendiente', ...customLists.map(l => l.name)].map(f => (
+        {['Todo', 'Leyendo', 'Leído', 'Pospuesto', 'Pendiente', ...customLists.map(l => l.name)].map(f => (
                     <Tag key={f} active={activeFilter === f} onClick={() => setActiveFilter(f)}>{f}</Tag>
                     ))}
                     <button 

@@ -16,6 +16,7 @@ export default function Register() {
     });
   const { login, register } = useContext(AuthContext); 
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleChange = (event) => {
     setForm({
@@ -26,12 +27,15 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+     setError(""); 
     try {
       await register(form.username, form.email, form.password); 
         await login(form.email, form.password);
         navigate('/dashboard');
     } catch (err) {
       console.error("Fallo de registro:", err);
+      const serverError = err.response?.data?.details || err.response?.data?.message || "Error al conectar con el servidor";
+        setError(serverError);
     }
   };
 
@@ -75,7 +79,12 @@ export default function Register() {
             value={form.password}
             onChange={handleChange} required
           />
-          
+          {error && (
+              <p className="text-red-500 text-xs text-center mb-4 font-bold animate-pulse">
+                  {error}
+              </p>
+          )}
+
           <Button variant="primary" type="submit" className="mt-4">
             Crear Cuenta
           </Button>

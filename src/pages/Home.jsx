@@ -180,12 +180,12 @@ const handleDeleteList = (listId, listName) => {
         {['Todo', 'Leyendo', 'Leído', 'Pospuesto', 'Pendiente', ...customLists.map(l => l.name)].map(f => (
                     <Tag key={f} active={activeFilter === f} onClick={() => setActiveFilter(f)}>{f}</Tag>
                     ))}
-                    <button 
+                    <TextButton 
                         onClick={handleCreateList} 
-                        className="text-primary text-sm font-bold whitespace-nowrap ml-2 cursor-pointer hover:underline"
+                        className="text-sm ml-2 whitespace-nowrap"
                     >
                         + Nueva Lista
-                    </button>
+                    </TextButton>
             </div>
 
 {(() => {

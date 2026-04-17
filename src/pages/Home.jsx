@@ -69,7 +69,8 @@ const Home = () => {
                 title: t.mangaTitle,
                 image: t.mangaImageUrl,
                 chapter: `Cap. ${t.progressUnit || 0} / ${t.totalChapters || '??'}`,
-                isCustom: !isNaN(t.externalId)
+                isCustom: !isNaN(t.externalId),
+                hasNewUpdate: t.hasNewUpdate
             }));
         }
         if (statusMap[activeFilter]) {
@@ -80,7 +81,8 @@ const Home = () => {
                     title: t.mangaTitle,
                     image: t.mangaImageUrl,
                     chapter: `Cap. ${t.progressUnit || 0} / ${t.totalChapters || '??'}`,
-                    isCustom: !isNaN(t.externalId)
+                    isCustom: !isNaN(t.externalId),
+                    hasNewUpdate: t.hasNewUpdate
                 }));
         }
         return listItems.map(item => {
@@ -94,7 +96,8 @@ const Home = () => {
                 chapter: tracker 
                     ? `Cap. ${tracker.progressUnit || 0} / ${tracker.totalChapters || '??'}` 
                     : "Sin leer",
-                isCustom: !isNaN(item.externalId)
+                isCustom: !isNaN(item.externalId),
+                hasNewUpdate: t.hasNewUpdate
             };
         });
 
@@ -206,7 +209,7 @@ const handleDeleteList = (listId, listName) => {
                         title={manga.title} 
                         cover={manga.image} 
                         subtitle={manga.chapter}
-                        badge={manga.isCustom ? "PERSONAL" : null}
+                        badge={manga.hasNewUpdate ? "NUEVO" : (manga.isCustom ? "PERSONAL" : null)}
                         onClick={() => navigate(`/dashboard/manga/${manga.id}`)}
                     />
                 ))}

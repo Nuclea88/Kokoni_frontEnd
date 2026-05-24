@@ -97,7 +97,7 @@ const Home = () => {
                     ? `Cap. ${tracker.progressUnit || 0} / ${tracker.totalChapters || '??'}` 
                     : "Sin leer",
                 isCustom: !isNaN(item.externalId),
-                hasNewUpdate: t.hasNewUpdate
+                hasNewUpdate: tracker?.hasNewUpdate
             };
         });
 

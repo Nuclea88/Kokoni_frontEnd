@@ -13,29 +13,48 @@ import TextButton from '../components/atoms/TextButton';
 
 const Explore = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(() => sessionStorage.getItem('kokoni_search') || '');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const categories = ['Todos', 'Acción', 'Romance', 'Seinen', 'Cyberpunk', 'Fantasía'];
-  const [mangas, setMangas] = useState([]);
+  const [mangas, setMangas] = useState(() => JSON.parse(sessionStorage.getItem('kokoni_mangas')) || []);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
+  const [page, setPage] =  useState(() => Number(sessionStorage.getItem('kokoni_page')) || 0);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
+  const [previousSearch, setPreviousSearch] = useState(() => sessionStorage.getItem('kokoni_search') || '');
 
   useEffect(() => {
+    sessionStorage.setItem('kokoni_search', searchTerm);
+    sessionStorage.setItem('kokoni_mangas', JSON.stringify(mangas));
+    sessionStorage.setItem('kokoni_page', page.toString());
+  }, [searchTerm, mangas, page]);
+
+ useEffect(() => {
+    if (searchTerm === previousSearch) return; 
+    
+    setPreviousSearch(searchTerm);
     setPage(0);
     setHasMore(true);
     setMangas([]);
-  }, [searchTerm]);
+  }, [searchTerm, previousSearch]);
 
   useEffect(() => {
     const fetchMangas = async () => {
       if (!searchTerm.trim()) return;
+      if (page === 0 && mangas.length > 0) return;
+
       setLoading(true);
       try {
         setError(null);
         const data = await mangaService.search(searchTerm, page);
-        setMangas(prev => (page === 0 ? data : [...prev, ...data]));
+         setMangas(prev => {
+          if (page === 0) return data;
+          const newMangas = data.filter(newManga => 
+            !prev.some(prevManga => prevManga.externalId === newManga.externalId)
+          );
+          return [...prev, ...newMangas];
+        });
+        
         setHasMore(data.length > 0);
       } catch (err) {
         console.error("Error buscando mangas", err);

@@ -19,7 +19,7 @@ const MangaActions = ({
                     <Play className="w-4 h-4 mr-2 fill-white" />
                     {(!nextChapter || nextChapter <= 0) 
                         ? "Sin capítulos" 
-                        : (isAllRead ? `Releer capítulo ${manga.totalChapters}` : `Leer capítulo ${nextChapter}`)}
+                        : (isAllRead ? `Remarcar capítulo ${manga.totalChapters}` : `Marcar capítulo ${nextChapter}`)}
                 </Button>
             </div>
             <div className="w-16">

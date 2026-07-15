@@ -14,6 +14,18 @@ const customMediaService = {
   getById: async (id) => {
     const response = await api.get(`/api/custom-media/${id}`);
     const data = response.data;
+
+    let parsedDescription = data.description;
+    try {
+        if (typeof parsedDescription === 'string' && parsedDescription.startsWith('{')) {
+            parsedDescription = JSON.parse(parsedDescription);
+        }
+    } catch (e) {
+    }
+
+    if (!parsedDescription || (typeof parsedDescription === 'object' && Object.keys(parsedDescription).length === 0)) {
+        parsedDescription = 'Ficha personalizada subida por ti a Kokoni.';
+    }
     return {
        ...data,
        author: data.customAuthor || 'Autor Desconocido',

@@ -327,7 +327,7 @@ const handleOpenCustomizeModal = () => {
                                 baseMangaId: manga.id,    
                                 customTotalChapters: parsedChapters,
                                 imageUrl: manga.imageUrl,
-                                description: manga.description,
+                                description: typeof manga.description === 'object' && manga.description !== null ? JSON.stringify(manga.description) : manga.description,
                                 customAuthor: manga.author,
                                 status: estadoCalculado
                             });
